@@ -40,7 +40,7 @@
   .subscriptionBox img {
     width: 100%;
     height: auto;
-    margin-bottom: 40px; /* Öka detta värde för att lägga till mer mellanrum */
+    margin-bottom: 40px; 
   }
   
   ul {

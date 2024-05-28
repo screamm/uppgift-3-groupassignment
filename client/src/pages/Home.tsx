@@ -17,25 +17,13 @@ export const Home = () => {
             price 149 kr/month. No commitment.
           </p>
           <ul>
+            <li>Access to all articles on gp.se and in the news app</li>
             <li>
-              <i className="fas fa-check-square"></i>Access to all articles on
-              gp.se and in the news app
+              E-newspaper all week - our digital version of the paper newspaper
             </li>
-            <li>
-              <i className="fas fa-check-square"></i>E-newspaper all week - our
-              digital version of the paper newspaper
-            </li>
-            <li>
-              <i className="fas fa-check-square"></i>Share your subscription
-              with 4 family members
-            </li>
-            <li>
-              <i className="fas fa-check-square"></i>Crosswords and Sudoku
-            </li>
-            <li>
-              <i className="fas fa-check-square"></i>Paper newspaper - choose
-              between weekend or all week
-            </li>
+            <li>Share your subscription with 4 family members</li>
+            <li>Crosswords and Sudoku</li>
+            <li>Paper newspaper - choose between weekend or all week</li>
           </ul>
           <button className="button">GET STARTED</button>
         </div>
@@ -45,25 +33,13 @@ export const Home = () => {
           <h3>49 kr</h3>
           <p>First month, then 299 kr/month. No commitment.</p>
           <ul>
+            <li>Access to all articles on gp.se and in the news app</li>
             <li>
-              <i className="fas fa-check-square"></i>Access to all articles on
-              gp.se and in the news app
+              E-newspaper all week - our digital version of the paper newspaper
             </li>
-            <li>
-              <i className="fas fa-check-square"></i>E-newspaper all week - our
-              digital version of the paper newspaper
-            </li>
-            <li>
-              <i className="fas fa-check-square"></i>Share your subscription
-              with 4 family members
-            </li>
-            <li>
-              <i className="fas fa-check-square"></i>Crosswords and Sudoku
-            </li>
-            <li>
-              <i className="fas fa-check-square"></i>Paper newspaper - choose
-              between weekend or all week
-            </li>
+            <li>Share your subscription with 4 family members</li>
+            <li>Crosswords and Sudoku</li>
+            <li>Paper newspaper - choose between weekend or all week</li>
           </ul>
           <button className="button">GET STARTED</button>
         </div>
@@ -76,25 +52,13 @@ export const Home = () => {
             newspaper. No commitment.
           </p>
           <ul>
+            <li>Access to all articles on gp.se and in the news app</li>
             <li>
-              <i className="fas fa-check-square"></i>Access to all articles on
-              gp.se and in the news app
+              E-newspaper all week - our digital version of the paper newspaper
             </li>
-            <li>
-              <i className="fas fa-check-square"></i>E-newspaper all week - our
-              digital version of the paper newspaper
-            </li>
-            <li>
-              <i className="fas fa-check-square"></i>Share your subscription
-              with 4 family members
-            </li>
-            <li>
-              <i className="fas fa-check-square"></i>Crosswords and Sudoku
-            </li>
-            <li>
-              <i className="fas fa-check-square"></i>Paper newspaper - choose
-              between weekend or all week
-            </li>
+            <li>Share your subscription with 4 family members</li>
+            <li>Crosswords and Sudoku</li>
+            <li>Paper newspaper - choose between weekend or all week</li>
           </ul>
           <button className="button">GET STARTED</button>
         </div>

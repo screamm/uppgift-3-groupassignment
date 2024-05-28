@@ -5,16 +5,19 @@ export const Navigation = () => {
     <nav>
       <ul>
         <li>
-          <NavLink to={"/"}>Hem</NavLink>
+          <NavLink to={"/"}>Home</NavLink>
         </li>
         <li>
-          <NavLink to={"/about"}>Om oss</NavLink>
+          <NavLink to={"/mypages"}>About</NavLink>
         </li>
         <li>
-          <NavLink to={"/contact"}>Kontakt</NavLink>
+          <NavLink to={"/contact"}>Contact</NavLink>
         </li>
         <li>
-          <NavLink to={"/movies"}>Filmer</NavLink>
+          <NavLink to={"/login"}>Login</NavLink>
+        </li>
+        <li>
+          <button>Log out</button>
         </li>
       </ul>
     </nav>

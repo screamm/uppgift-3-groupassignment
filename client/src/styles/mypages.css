@@ -1,0 +1,46 @@
+.mypages-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    /* justify-content: center; */
+    min-height: 100vh;
+    background-color: #f8f9fa;
+    padding: 20px;
+  }
+  
+  .mypages-title {
+    font-size: 2rem;
+    font-weight: bold;
+    margin-bottom: 20px;
+  }
+  
+  .mypages-subscription {
+    margin-bottom: 20px;
+  }
+  
+  .mypages-buttons {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+  }
+  
+  .mypages-change-text {
+    margin-bottom: 10px;
+  }
+  
+  .mypages-button {
+    background-color: #007bff;
+    color: white;
+    padding: 10px 20px;
+    margin: 5px 0;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1rem;
+    margin: 1em;
+  }
+  
+  .mypages-button:hover {
+    background-color: #0056b3;
+  }
+  

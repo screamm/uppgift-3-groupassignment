@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import '../styles/mypages.css';
 
 export const MyPages = () => {
   const [subscriptionLevel, setSubscriptionLevel] = useState('');
-//   const [newSubscriptionLevel, setNewSubscriptionLevel] = useState('');
+  const [newSubscriptionLevel, setNewSubscriptionLevel] = useState('');
 
   useEffect(() => {
     // Hämta nuvarande prenumerationsnivå
@@ -28,27 +29,27 @@ export const MyPages = () => {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-6">
-      <h1 className="text-2xl font-bold mb-6">My Pages</h1>
-      <p className="mb-4">Current Subscription Level: <strong>{subscriptionLevel}</strong></p>
+    <div className="mypages-container">
+      <h1 className="mypages-title">My Pages</h1>
+      <p className="mypages-subscription">Current Subscription Level: <strong>{subscriptionLevel}</strong></p>
 
-      <div className="flex flex-col items-center">
-        <p className="mb-4">Change Subscription Level:</p>
+      <div className="mypages-buttons">
+        <p className="mypages-change-text">Change Subscription Level:</p>
         <button
           onClick={() => handleUpgradeDowngrade('News Site')}
-          className="bg-blue-500 text-white py-2 px-4 rounded mb-2"
+          className="mypages-button"
         >
           News Site
         </button>
         <button
           onClick={() => handleUpgradeDowngrade('Digital')}
-          className="bg-blue-500 text-white py-2 px-4 rounded mb-2"
+          className="mypages-button"
         >
           Digital
         </button>
         <button
           onClick={() => handleUpgradeDowngrade('Digital & Paper')}
-          className="bg-blue-500 text-white py-2 px-4 rounded"
+          className="mypages-button"
         >
           Digital & Paper
         </button>
@@ -58,18 +59,3 @@ export const MyPages = () => {
 };
 
 export default MyPages;
-
-
-
-
-
-
-// export const MyPages = () => {
-//     return (
-//         <div>
-//             <h3>MY PAGES som visar artikelnivån</h3>
-//             <h2>här ska du uppgradera/nergradera din sub</h2>
-//             <h2>du ska även kunna se hur länge din sub är igång osv</h2>
-//         </div>
-//     );
-// };

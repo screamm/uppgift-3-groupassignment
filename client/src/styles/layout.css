@@ -4,13 +4,33 @@
     display: flex;
     flex-direction: row;
     justify-content: space-between;
-    
+    align-items: center;
     padding: 0 20px;
     background-color: #f8f9fa;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 
 
 }
+
+
+.nav-list {
+    display: flex;
+    flex-direction: row;
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+}
+
+.nav-list li {
+    margin-right: 20px; /* Lägg till lite utrymme mellan länkarna */
+}
+
+.nav-list li a {
+    text-decoration: none;
+    color: #000;
+}
+
+
 
 .outlet{
     display: flex;

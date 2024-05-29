@@ -3,7 +3,7 @@ import express from 'express';
 import mongoose from 'mongoose';
 import userRoutes from './routes/subscription.router';
 import colors from 'colors';
-import router from './routes/subscription.router';
+import subscriptionRouter from './routes/subscription.router';
 
 // import dotenv from 'dotenv';
 
@@ -13,7 +13,7 @@ import router from './routes/subscription.router';
 // const userRouter = require("./resources/users/users.router");
 // const authRouter = require("./resources/auth/auth.router");
 // const { getProducts } = require("./resources/stripe/stripe.controller");
-const articleRoutes = require('./routes/article.router');
+const articleRoutes = require('./routes/articles.router');
 
 
 // dotenv.config();
@@ -57,11 +57,8 @@ app.get('/', (req, res) => {
 // app.use("/auth", authRouter);
 // app.get("/products", getProducts);
 
-app.use('/api/subscription', userRoutes);
-app.use('/api/articles', articleRoutes)
-
-
-
+app.use('/api/subscription', subscriptionRouter);
+// app.use('/api/articles', articleRoutes)
 
 
 

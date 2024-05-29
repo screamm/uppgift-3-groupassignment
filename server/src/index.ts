@@ -1,8 +1,9 @@
 
 import express from 'express';
 import mongoose from 'mongoose';
-import userRoutes from './routes/subscription';
+import userRoutes from './routes/subscription.router';
 import colors from 'colors';
+import router from './routes/subscription.router';
 
 // import dotenv from 'dotenv';
 
@@ -59,7 +60,7 @@ app.get('/', (req, res) => {
 
 
 // Använda userRoutes för alla rutter under '/api/user'
-app.use('/api/user', userRoutes);
+app.use('/api/subscription', router);
 
 
 

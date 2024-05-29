@@ -1,3 +1,4 @@
+//begränsa tillgången baserat på role
 import { Request, Response } from 'express';
 import User, { IUser } from '../models/User';
 import Subscription, { ISubscription } from '../models/Subscription';

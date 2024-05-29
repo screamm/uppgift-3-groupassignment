@@ -13,7 +13,7 @@ import router from './routes/subscription.router';
 // const userRouter = require("./resources/users/users.router");
 // const authRouter = require("./resources/auth/auth.router");
 // const { getProducts } = require("./resources/stripe/stripe.controller");
-
+const articleRoutes = require('./routes/article.router');
 
 
 // dotenv.config();
@@ -57,10 +57,12 @@ app.get('/', (req, res) => {
 // app.use("/auth", authRouter);
 // app.get("/products", getProducts);
 
+app.use('/api/subscription', userRoutes);
+app.use('/api/articles', articleRoutes)
 
 
-// Använda userRoutes för alla rutter under '/api/user'
-app.use('/api/subscription', router);
+
+
 
 
 

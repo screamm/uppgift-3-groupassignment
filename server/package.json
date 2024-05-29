@@ -11,10 +11,12 @@
   "license": "ISC",
   "dependencies": {
     "colors": "^1.4.0",
-    "express": "^4.19.2"
+    "express": "^4.19.2",
+    "mongoose": "^8.4.0"
   },
   "devDependencies": {
     "@types/express": "^4.17.21",
+    "@types/mongoose": "^5.11.97",
     "ts-node": "^10.9.2",
     "typescript": "^5.4.5"
   }

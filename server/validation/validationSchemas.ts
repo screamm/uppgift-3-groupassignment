@@ -1,4 +1,4 @@
-const Joi = require("joi");
+import Joi from "joi";
 
 const validationSchemas = Joi.object({
   email: Joi.string().email().required().messages({
@@ -11,4 +11,4 @@ const validationSchemas = Joi.object({
   }),
 });
 
-module.exports = { validationSchemas };
+export { validationSchemas };

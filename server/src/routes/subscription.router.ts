@@ -1,12 +1,10 @@
 import express from 'express';
-import { getUserSubscription, updateUserSubscription } from '../controllers/userController';
+import { getUserSubscription, updateUserSubscription } from '../controllers/subscription.controllers';
 
-const router = express.Router();
+const subscriptionRouter = express.Router();
 
-// Hämta användarens prenumerationsnivå
-router.get('/subscription', getUserSubscription);
+subscriptionRouter.get('/', getUserSubscription);
 
-// Uppdatera användarens prenumerationsnivå
-router.post('/subscription', updateUserSubscription);
+subscriptionRouter.post('/', updateUserSubscription);
 
-export default router;
+export default subscriptionRouter;

@@ -34,12 +34,14 @@ function sortPagesByLevel(pages: any[]) {
 // bestämmer level för en sida 
 function determineLevel(page: any) {
     const price = page.metadata.price || 0; 
-    if (price <= 50) {
+    if (price === 1) {
         return 'basic';
-    } else if (price > 50 && price <= 149) {
+    } else if (price === 149) {
         return 'insight';
-    } else {
+    } else if (price === 499) {
         return 'elite';
+    } else {
+        return 'default';
     }
 }
 

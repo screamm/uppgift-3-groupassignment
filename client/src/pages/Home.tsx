@@ -12,12 +12,14 @@ export const Home = () => {
           <img src={img1} alt="Product Image" />
           <h2>Alpaca Basic</h2>
           <h3>1 kr</h3>
-          <p>
-            2 months for 1 kr then 50% off for 3 months. After that, regular
-            price 149 kr/month. No commitment.
-          </p>
           <ul>
-            <li>Access to all articles on Alpaca Digest and in the news app</li>
+            <li>
+              2 months for 1 kr then 50% off for 3 months. After that, regular
+              price 149 kr/month. No commitment.
+            </li>
+            <li>
+              Access to all articles on Alpaca News website and in the app
+            </li>
             <li>
               E-newspaper all week - our digital version of the paper newspaper
             </li>
@@ -30,9 +32,11 @@ export const Home = () => {
         <div className="subscriptionBox">
           <img src={img2} alt="Product Image" />
           <h2>Alpaca Insights</h2>
-          <h3>49 kr/month</h3>
-          <p>Access to all articles on Alpaca Digest and in the news app</p>
+          <h3>149 kr/month</h3>
           <ul>
+            <li>
+              Access to all articles on Alpaca News website and in the app
+            </li>
             <li>
               E-newspaper all week - our digital version of the paper newspaper
             </li>
@@ -53,10 +57,10 @@ export const Home = () => {
           <img src={img3} alt="Product Image" />
           <h2>Alpaca Elite</h2>
           <h3>499 kr/month</h3>
-          <p>
-            Includes all benefits of Alpacka Basic and Alpacka Insights, plus:
-          </p>
           <ul>
+            <li>
+              Includes all benefits of Alpacka Basic and Alpacka Insights, plus:
+            </li>
             <li>
               Adopt an alpaca - receive updates and photos of your adopted
               alpaca

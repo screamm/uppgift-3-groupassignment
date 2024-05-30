@@ -5,7 +5,7 @@ import { MyPages } from "./pages/MyPages";
 import { Layout } from "./pages/Layout";
 import { Admin } from "./pages/Admin";
 import { Contact } from "./pages/Contact";
-import { Login } from "./pages/login";
+import { Login } from "./pages/Login";
 
 export const router = createBrowserRouter([
   {

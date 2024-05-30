@@ -17,7 +17,9 @@ export const Home = () => {
             price 149 kr/month. No commitment.
           </p>
           <ul>
-            <li>Access to all articles on Alpaca Digest and in the news app</li>
+            <li>
+              Access to all articles on Alpaca News website and in the app
+            </li>
             <li>
               E-newspaper all week - our digital version of the paper newspaper
             </li>
@@ -30,7 +32,7 @@ export const Home = () => {
         <div className="subscriptionBox">
           <img src={img2} alt="Product Image" />
           <h2>Alpaca Insights</h2>
-          <h3>49 kr/month</h3>
+          <h3>149 kr/month</h3>
           <p>Access to all articles on Alpaca Digest and in the news app</p>
           <ul>
             <li>

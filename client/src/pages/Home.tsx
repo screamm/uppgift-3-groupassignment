@@ -6,22 +6,22 @@ import img3 from "../img/lvl3.png";
 export const Home = () => {
   return (
     <>
-      <h1>TITLE</h1>
+      <h1>ALPACA NEWS</h1>
       <div className="container">
         <div className="subscriptionBox">
           <img src={img1} alt="Product Image" />
-          <h2>NEWS SITE</h2>
+          <h2>Alpacka Basic</h2>
           <h3>1 kr</h3>
           <p>
             2 months for 1 kr then 50% off for 3 months. After that, regular
             price 149 kr/month. No commitment.
           </p>
           <ul>
-            <li>Access to all articles on gp.se and in the news app</li>
+            <li>Access to all articles on Alpaca Digest and in the news app</li>
             <li>
               E-newspaper all week - our digital version of the paper newspaper
             </li>
-            <li>Share your subscription with 4 family members</li>
+            <li>Share your subscription with 2 family members</li>
             <li>Crosswords and Sudoku</li>
             <li>Paper newspaper - choose between weekend or all week</li>
           </ul>
@@ -29,36 +29,56 @@ export const Home = () => {
         </div>
         <div className="subscriptionBox">
           <img src={img2} alt="Product Image" />
-          <h2>DIGITAL</h2>
-          <h3>49 kr</h3>
-          <p>First month, then 299 kr/month. No commitment.</p>
+          <h2>Alpacka Insights</h2>
+          <h3>49 kr/month</h3>
+          <p>Access to all articles on Alpaca Digest and in the news app</p>
           <ul>
-            <li>Access to all articles on gp.se and in the news app</li>
             <li>
               E-newspaper all week - our digital version of the paper newspaper
             </li>
             <li>Share your subscription with 4 family members</li>
             <li>Crosswords and Sudoku</li>
-            <li>Paper newspaper - choose between weekend or all week</li>
+            <li>
+              Monthly exclusive video content on alpaca care and lifestyle
+            </li>
+            <li>
+              Quarterly alpaca-themed gifts (e.g., small items like keychains or
+              socks made of alpaca wool)
+            </li>
+            <li>Invitation to bi-monthly virtual alpaca farm tours</li>
           </ul>
           <button className="button">GET STARTED</button>
         </div>
         <div className="subscriptionBox">
           <img src={img3} alt="Product Image" />
-          <h2>DIGITAL & PAPER</h2>
-          <h3>From 449 kr</h3>
+          <h2>Alpacka Elite</h2>
+          <h3>499 kr/month</h3>
           <p>
-            In the next step, choose how often you want to receive the
-            newspaper. No commitment.
+            Includes all benefits of Alpacka Basic and Alpacka Insights, plus:
           </p>
           <ul>
-            <li>Access to all articles on gp.se and in the news app</li>
             <li>
-              E-newspaper all week - our digital version of the paper newspaper
+              Adopt an alpaca - receive updates and photos of your adopted
+              alpaca
             </li>
-            <li>Share your subscription with 4 family members</li>
-            <li>Crosswords and Sudoku</li>
-            <li>Paper newspaper - choose between weekend or all week</li>
+            <li>
+              Exclusive alpaca wool scarf sent to your home upon subscribing
+            </li>
+            <li>
+              Monthly alpaca-themed gift (e.g., keychain, mug, or stationery)
+            </li>
+            <li>
+              Invitation to virtual alpaca farm tours and live Q&A sessions with
+              alpaca experts
+            </li>
+            <li>
+              Annual alpaca farm visit - a day at an alpaca farm (travel not
+              included)
+            </li>
+            <li>
+              Personalized alpaca merchandise (e.g., a customized alpaca plush
+              toy with your name)
+            </li>
           </ul>
           <button className="button">GET STARTED</button>
         </div>

@@ -1,7 +1,7 @@
 import "../styles/home.css";
-import img1 from "../img/np1.png";
-import img2 from "../img/np2.png";
-import img3 from "../img/np3.png";
+import img1 from "../img/lvl1.png";
+import img2 from "../img/lvl2.png";
+import img3 from "../img/lvl3.png";
 
 export const Home = () => {
   return (

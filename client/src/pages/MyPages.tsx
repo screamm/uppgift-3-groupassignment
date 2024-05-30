@@ -4,12 +4,12 @@ import '../styles/mypages.css';
 
 export const MyPages = () => {
   const [subscriptionLevel, setSubscriptionLevel] = useState('');
-  const [newSubscriptionLevel, setNewSubscriptionLevel] = useState('');
 
   useEffect(() => {
     // Hämta nuvarande prenumerationsnivå
-    axios.get('/api/user/subscription', { params: { userId: '1' } }) // Anpassa userId efter autentisering
+    axios.get('http://localhost:3000/subscription', { params: { userId: '1' } }) // Använd fullständig URL
       .then(response => {
+        console.log('Response from server:', response.data); // Logga hela svaret
         setSubscriptionLevel(response.data.subscriptionLevel);
       })
       .catch(error => {
@@ -18,8 +18,9 @@ export const MyPages = () => {
   }, []);
 
   const handleUpgradeDowngrade = (level: string) => {
-    axios.post('/api/user/subscription', { userId: '1', subscriptionLevel: level }) // Anpassa userId efter autentisering
+    axios.post('http://localhost:3000/subscription', { userId: '1', subscriptionLevel: level }) // Använd fullständig URL
       .then(response => {
+        console.log('Updated subscription level to:', level); // Logga för felsökning
         setSubscriptionLevel(level);
         alert(response.data.message);
       })

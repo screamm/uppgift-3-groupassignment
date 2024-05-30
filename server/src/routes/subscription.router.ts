@@ -3,10 +3,8 @@ import { getUserSubscription, updateUserSubscription } from '../controllers/subs
 
 const subscriptionRouter = express.Router();
 
-// Hämta användarens prenumerationsnivå
-subscriptionRouter.get('/subscription', getUserSubscription);
+subscriptionRouter.get('/', getUserSubscription);
 
-// Uppdatera användarens prenumerationsnivå
-subscriptionRouter.post('/subscription', updateUserSubscription);
+subscriptionRouter.post('/', updateUserSubscription);
 
 export default subscriptionRouter;

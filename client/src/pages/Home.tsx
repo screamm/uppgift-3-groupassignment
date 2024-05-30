@@ -10,7 +10,7 @@ export const Home = () => {
       <div className="container">
         <div className="subscriptionBox">
           <img src={img1} alt="Product Image" />
-          <h2>Alpacka Basic</h2>
+          <h2>Alpaca Basic</h2>
           <h3>1 kr</h3>
           <p>
             2 months for 1 kr then 50% off for 3 months. After that, regular
@@ -29,7 +29,7 @@ export const Home = () => {
         </div>
         <div className="subscriptionBox">
           <img src={img2} alt="Product Image" />
-          <h2>Alpacka Insights</h2>
+          <h2>Alpaca Insights</h2>
           <h3>49 kr/month</h3>
           <p>Access to all articles on Alpaca Digest and in the news app</p>
           <ul>
@@ -51,7 +51,7 @@ export const Home = () => {
         </div>
         <div className="subscriptionBox">
           <img src={img3} alt="Product Image" />
-          <h2>Alpacka Elite</h2>
+          <h2>Alpaca Elite</h2>
           <h3>499 kr/month</h3>
           <p>
             Includes all benefits of Alpacka Basic and Alpacka Insights, plus:

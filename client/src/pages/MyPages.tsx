@@ -7,9 +7,9 @@ export const MyPages = () => {
 
   useEffect(() => {
     // Hämta nuvarande prenumerationsnivå
-    axios.get('http://localhost:3000/subscription', { params: { userId: '1' } }) // Använd fullständig URL
+    axios.get('http://localhost:3000/subscription', { params: { userId: '1' } }) 
       .then(response => {
-        console.log('Response from server:', response.data); // Logga hela svaret
+        console.log('Response from server:', response.data); 
         setSubscriptionLevel(response.data.subscriptionLevel);
       })
       .catch(error => {
@@ -18,9 +18,9 @@ export const MyPages = () => {
   }, []);
 
   const handleUpgradeDowngrade = (level: string) => {
-    axios.post('http://localhost:3000/subscription', { userId: '1', subscriptionLevel: level }) // Använd fullständig URL
+    axios.post('http://localhost:3000/subscription', { userId: '1', subscriptionLevel: level }) 
       .then(response => {
-        console.log('Updated subscription level to:', level); // Logga för felsökning
+        console.log('Updated subscription level to:', level); 
         setSubscriptionLevel(level);
         alert(response.data.message);
       })

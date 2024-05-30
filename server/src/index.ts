@@ -5,20 +5,16 @@ import colors from 'colors';
 import dotenv from 'dotenv';
 import cors from 'cors';
 
-// Ladda miljövariabler från .env-filen
 dotenv.config();
 
 const app = express();
 const port = process.env.PORT || 3000;
 
-// Middleware för att parsa JSON
 app.use(express.json());
-
-// Middleware för att hantera CORS
 app.use(cors());
 
 mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/grupp5')
-  .then(() => console.log(colors.green('MongoDB connected')))
+  .then(() => console.log(colors.yellow('MongoDB connected')))
   .catch(err => console.log(colors.red(`MongoDB connection error: ${err}`)));
 
 app.get('/', (req, res) => {

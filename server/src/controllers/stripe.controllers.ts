@@ -61,11 +61,12 @@ const getSubscriptions = async (req: Request, res: Response): Promise<void> => {
 };
 
 const createCheckoutSession = async (req: Request, res: Response): Promise<void> => {
-  const cart = req.body;
-
-  if (!req.session || !req.session.user) {
-    return res.status(401).json({ error: 'Unauthorized' });
-  }
+    const cart = req.body;
+  
+    if (!req.session || !req.session.user) {
+      res.status(401).end();
+      return;
+    }
 
   try {
     const line_items = await Promise.all(

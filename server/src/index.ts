@@ -7,6 +7,7 @@ import cors from 'cors';
 import stripeRouter from './routes/stripe.router'
 import authRouter from './routes/auth.router';
 import session from 'express-session';
+import articleRouter from './routes/articles.router';
 
 dotenv.config();
 
@@ -40,6 +41,7 @@ app.get('/', (req, res) => {
 app.use('/subscription', subscriptionRouter);
 app.use('/auth', authRouter);
 app.use('/stripe', stripeRouter)
+app.use('/articles', articleRouter);
 
 app.listen(port, () => {
 console.log(colors.rainbow(`Server is running on http://localhost:${port}`));

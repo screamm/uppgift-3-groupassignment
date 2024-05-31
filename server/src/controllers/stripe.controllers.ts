@@ -5,6 +5,9 @@ import Stripe from 'stripe';
 import fs from 'fs/promises'; 
 import path from 'path';
 import session from 'express-session';
+import dotenv from 'dotenv';
+
+dotenv.config();
 
 declare module 'express-session' {
   interface SessionData {
@@ -143,4 +146,4 @@ const verifySession = async (req: Request, res: Response): Promise<void> => {
   }
 };
 
-export { createCheckoutSession, getSubscriptions, verifySession };
+export { createCheckoutSession, getSubscriptions, verifySession, stripe };

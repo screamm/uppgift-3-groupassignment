@@ -2,11 +2,7 @@ import { Request, Response } from 'express';
 import { IArticle } from '../models/Article';
 import Article from '../models/Article';
 import { stripe } from './stripe.controllers';
-import dotenv from 'dotenv';
 
-dotenv.config();
-
-// http://localhost:3000/articles/products
 export const getAllProducts = async (req: Request, res: Response) => {
     try {
         const products = await stripe.products.list();
@@ -27,32 +23,32 @@ export const getAllProducts = async (req: Request, res: Response) => {
             })
         );
 
-        res.json(productsWithPrices.filter(product => product !== null));
+        return res.json(productsWithPrices.filter(product => product !== null));
     } catch (error) {
         console.error('Error fetching products:', error);
-        res.status(500).json({ error: 'Error fetching products' });
+        if (!res.headersSent) {
+            return res.status(500).json({ error: 'Error fetching products' });
+        }
     }
 };
 
-// Funktion för att hämta och sortera artiklar baserat på nivå
 export const getSortedArticles = async (req: Request, res: Response) => {
     try {
-        const userId = req.query.userId as string;  // Anta att userId kommer som en query parameter
+        const userId = req.query.userId as string;
 
-        // Hämta alla artiklar från databasen
         const articles: IArticle[] = await Article.find().exec();
 
-        // Sortera artiklarna baserat på nivå
         const sortedArticles = sortArticlesByLevel(articles);
 
-        res.json(sortedArticles);
+        return res.json(sortedArticles);
     } catch (error) {
         console.error('Error fetching and sorting articles:', error);
-        res.status(500).send('Error fetching and sorting articles.');
+        if (!res.headersSent) {
+            return res.status(500).send('Error fetching and sorting articles.');
+        }
     }
 };
 
-// Funktion för att sortera artiklar baserat på level
 const sortArticlesByLevel = (articles: IArticle[]) => {
     const levels: { [key: string]: IArticle[] } = {
         basic: [],
@@ -73,7 +69,6 @@ const sortArticlesByLevel = (articles: IArticle[]) => {
     return levels;
 };
 
-// Funktion för att bestämma level för en artikel
 const determineLevel = (article: IArticle) => {
     const level = article.level.toLowerCase();
 

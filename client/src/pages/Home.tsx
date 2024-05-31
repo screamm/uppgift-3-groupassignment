@@ -18,7 +18,7 @@ export const Home = () => {
   useEffect(() => {
     fetch("http://localhost:3000/articles/products")
       .then((response) => response.json())
-      .then((data) => setProducts(data));
+      .then((data) => setProducts(data.reverse()));
   }, []);
 
   const descriptions = [

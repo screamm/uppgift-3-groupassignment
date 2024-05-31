@@ -6,29 +6,35 @@ import { stripe } from './stripe.controllers';
 export const getAllProducts = async (req: Request, res: Response) => {
     try {
         const products = await stripe.products.list();
-        console.log('Stripe response:', products);
+        console.log('Stripe response:', products.data.map(product => ({ id: product.id, name: product.name })));
 
-        const productsWithPrices = await Promise.all(
-            products.data.map(async (product) => {
-                try {
-                    const price = await stripe.prices.retrieve(product.default_price as string);
-                    return {
-                        ...product,
-                        price: price.unit_amount ? price.unit_amount / 100 : null
-                    };
-                } catch (error) {
-                    console.error(`Error retrieving price for product ${product.id}:`, error);
-                    return null;
-                }
-            })
-        );
+        const productsWithPrices = [];
+        const errors = [];
 
-        return res.json(productsWithPrices.filter(product => product !== null));
-    } catch (error) {
-        console.error('Error fetching products:', error);
-        if (!res.headersSent) {
-            return res.status(500).json({ error: 'Error fetching products' });
+        for (const product of products.data) {
+            try {
+                const price = await stripe.prices.retrieve(product.default_price as string);
+                productsWithPrices.push({
+                    id: product.id,
+                    name: product.name,
+                    description: product.description,
+                    images: product.images,
+                    price: price.unit_amount ? price.unit_amount / 100 : null
+                });
+            } catch (error: any) {
+                console.error('Error fetching product price:', error.message);
+                errors.push(error.message || 'Error fetching product price');
+            }
         }
+
+        if (errors.length > 0) {
+            return res.status(500).json({ errors });
+        }
+
+        return res.json(productsWithPrices);
+    } catch (error: any) {
+        console.error('Error fetching products:', error.message);
+        return res.status(500).json({ error: 'Error fetching products' });
     }
 };
 

@@ -13,7 +13,7 @@ export interface IUser extends Document {
 }
 
 const UserSchema: Schema<IUser> = new Schema({
-  subscriptionId: { type: String, required: true },
+  subscriptionId: { type: String }, //removed required for testing
   email: { type: String, required: true, unique: true },
   firstName: { type: String, required: true },
   lastName: { type: String, required: true },

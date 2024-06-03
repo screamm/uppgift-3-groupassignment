@@ -11,15 +11,21 @@ import {
   useEffect,
   useState,
 } from "react";
+import { useNavigate } from "react-router-dom";
 
 export const Home = () => {
   const [products, setProducts] = useState([]);
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetch("http://localhost:3000/articles/products")
       .then((response) => response.json())
       .then((data) => setProducts(data.reverse()));
   }, []);
+
+  const getStartedClick = () => {
+    navigate("/register");
+  };
 
   const descriptions = [
     [
@@ -83,7 +89,9 @@ export const Home = () => {
                   <li key={i}>{description}</li>
                 ))}
               </ul>
-              <button className="button">GET STARTED</button>
+              <button className="button" onClick={getStartedClick}>
+                GET STARTED
+              </button>
             </div>
           )
         )}

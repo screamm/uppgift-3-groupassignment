@@ -17,6 +17,9 @@ export const Navigation = () => {
           <NavLink to={"/login"}>Login</NavLink>
         </li>
         <li>
+          <NavLink to={"/register"}>Register</NavLink>
+        </li>
+        <li>
           <button>Log out</button>
         </li>
       </ul>

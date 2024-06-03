@@ -87,13 +87,6 @@ export const Register = () => {
             />
           </div>
           <div>
-            <label>Role:</label>
-            <select name="role" value={formData.role} onChange={handleChange}>
-              <option value="user">User</option>
-              <option value="admin">Admin</option>
-            </select>
-          </div>
-          <div>
             <label>
               <input
                 type="checkbox"

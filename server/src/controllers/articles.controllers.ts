@@ -6,7 +6,7 @@ import { stripe } from './stripe.controllers';
 export const getAllProducts = async (): Promise<any[]> => {
     try {
         const products = await stripe.products.list();
-        console.log('Stripe response:', products.data.map(product => ({ id: product.id, name: product.name })));
+        // console.log('Stripe response:', products.data.map(product => ({ id: product.id, name: product.name })));
 
         const productsWithPrices = [];
 

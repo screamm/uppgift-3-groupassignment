@@ -1,0 +1,16 @@
+.contact-container {
+    max-width: 800px;
+    margin: 0 auto;
+    text-align: center;
+    padding-bottom: 80px;
+  }
+  
+  .contact-container h1,
+  .contact-container h2 {
+    margin-bottom: 10px;
+  }
+  
+  .contact-container p {
+    margin-bottom: 20px;
+  }
+  

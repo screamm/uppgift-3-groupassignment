@@ -6,6 +6,7 @@ import { Layout } from "./pages/Layout";
 import { Admin } from "./pages/Admin";
 import { Contact } from "./pages/Contact";
 import { Login } from "./pages/login";
+import { Register } from "./pages/Register";
 
 export const router = createBrowserRouter([
   {

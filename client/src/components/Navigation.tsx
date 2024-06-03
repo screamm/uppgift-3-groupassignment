@@ -1,9 +1,13 @@
 import { NavLink } from "react-router-dom";
+import icon from "../img/lvl2.png";
 
 export const Navigation = () => {
   return (
     <nav className="navbar">
       <ul className="nav-list">
+        <li>
+          <img src={icon} alt="Icon" />
+        </li>
         <li>
           <NavLink to={"/"}>Home</NavLink>
         </li>

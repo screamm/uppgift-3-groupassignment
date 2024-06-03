@@ -2,7 +2,7 @@ import { NavLink } from "react-router-dom";
 
 export const Navigation = () => {
   return (
-    <nav>
+    <nav className="navbar">
       <ul className="nav-list">
         <li>
           <NavLink to={"/"}>Home</NavLink>
@@ -20,7 +20,7 @@ export const Navigation = () => {
           <NavLink to={"/register"}>Register</NavLink>
         </li>
         <li>
-          <button>Log out</button>
+          <button className="logout-btn">Log out</button>
         </li>
       </ul>
     </nav>

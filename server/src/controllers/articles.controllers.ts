@@ -3,13 +3,12 @@ import { IArticle } from '../models/Article';
 import Article from '../models/Article';
 import { stripe } from './stripe.controllers';
 
-export const getAllProducts = async (req: Request, res: Response) => {
+export const getAllProducts = async (): Promise<any[]> => {
     try {
         const products = await stripe.products.list();
         console.log('Stripe response:', products.data.map(product => ({ id: product.id, name: product.name })));
 
         const productsWithPrices = [];
-        const errors = [];
 
         for (const product of products.data) {
             try {
@@ -23,35 +22,25 @@ export const getAllProducts = async (req: Request, res: Response) => {
                 });
             } catch (error: any) {
                 console.error('Error fetching product price:', error.message);
-                errors.push(error.message || 'Error fetching product price');
+                throw new Error(error.message || 'Error fetching product price');
             }
         }
 
-        if (errors.length > 0) {
-            return res.status(500).json({ errors });
-        }
-
-        return res.json(productsWithPrices);
+        return productsWithPrices;
     } catch (error: any) {
         console.error('Error fetching products:', error.message);
-        return res.status(500).json({ error: 'Error fetching products' });
+        throw new Error('Error fetching products');
     }
 };
 
-export const getSortedArticles = async (req: Request, res: Response) => {
+export const getSortedArticles = async (): Promise<any> => {
     try {
-        const userId = req.query.userId as string;
-
         const articles: IArticle[] = await Article.find().exec();
-
         const sortedArticles = sortArticlesByLevel(articles);
-
-        return res.json(sortedArticles);
+        return sortedArticles;
     } catch (error) {
         console.error('Error fetching and sorting articles:', error);
-        if (!res.headersSent) {
-            return res.status(500).send('Error fetching and sorting articles.');
-        }
+        throw new Error('Error fetching and sorting articles');
     }
 };
 

@@ -6,22 +6,26 @@ const articleRouter = express.Router();
 // Hämta alla produkter från Stripe
 articleRouter.get('/products', async (req, res) => {
   try {
-    const products = await getAllProducts(req, res);
+    const products = await getAllProducts();
     res.json(products);
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error fetching products:', error);
-    res.status(500).send('Error fetching products.');
+    if (!res.headersSent) {
+      res.status(500).send(error.message || 'Error fetching products.');
+    }
   }
 });
 
 // Hämta och sortera artiklar baserat på nivå
 articleRouter.get('/articles', async (req, res) => {
   try {
-    const sortedArticles = await getSortedArticles(req, res);
+    const sortedArticles = await getSortedArticles();
     res.json(sortedArticles);
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error fetching and sorting articles:', error);
-    res.status(500).send('Error fetching and sorting articles.');
+    if (!res.headersSent) {
+      res.status(500).send(error.message || 'Error fetching and sorting articles.');
+    }
   }
 });
 

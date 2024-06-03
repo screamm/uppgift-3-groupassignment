@@ -2,16 +2,9 @@ import "../styles/home.css";
 import img1 from "../img/lvl1.png";
 import img2 from "../img/lvl2.png";
 import img3 from "../img/lvl3.png";
-import {
-  JSXElementConstructor,
-  Key,
-  ReactElement,
-  ReactNode,
-  ReactPortal,
-  useEffect,
-  useState,
-} from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { IProduct } from "../models/Article";
 
 export const Home = () => {
   const [products, setProducts] = useState([]);
@@ -60,41 +53,24 @@ export const Home = () => {
     <>
       <h1>ALPACA NEWS</h1>
       <div className="container">
-        {products.map(
-          (
-            product: {
-              id: Key | null | undefined;
-              name:
-                | string
-                | number
-                | boolean
-                | ReactElement<any, string | JSXElementConstructor<any>>
-                | Iterable<ReactNode>
-                | ReactPortal
-                | null
-                | undefined;
-              price: number;
-            },
-            index: number
-          ) => (
-            <div className="subscriptionBox" key={product.id}>
-              <img
-                src={index === 0 ? img1 : index === 1 ? img2 : img3}
-                alt="Product Image"
-              />
-              <h2>{product.name}</h2>
-              <h3>{product.price} kr/week</h3>
-              <ul>
-                {descriptions[index].map((description, i) => (
-                  <li key={i}>{description}</li>
-                ))}
-              </ul>
-              <button className="button" onClick={getStartedClick}>
-                GET STARTED
-              </button>
-            </div>
-          )
-        )}
+        {products.map((product: IProduct, index: number) => (
+          <div className="subscriptionBox" key={product.id}>
+            <img
+              src={index === 0 ? img1 : index === 1 ? img2 : img3}
+              alt="Product Image"
+            />
+            <h2>{product.name}</h2>
+            <h3>{product.price} kr/week</h3>
+            <ul>
+              {descriptions[index].map((description, i) => (
+                <li key={i}>{description}</li>
+              ))}
+            </ul>
+            <button className="button" onClick={getStartedClick}>
+              GET STARTED
+            </button>
+          </div>
+        ))}
       </div>
     </>
   );

@@ -1,4 +1,5 @@
 import { createContext, useContext, useState, ReactNode } from 'react';
+import { logoutUser } from '../services/api';
 
 interface IAuthContext {
   isAuthenticated: boolean;
@@ -15,9 +16,21 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setIsAuthenticated(true);
   };
 
-  const logout = () => {
-    setIsAuthenticated(false);
+  const logout = async () => {
+    try {
+      const response = await logoutUser();
+
+      if (response.status === 200) {
+        setIsAuthenticated(false);
+        console.log('User logged out');
+      } else {
+        console.error('Logout failed with status:', response.status);
+      }
+    } catch (error) {
+      console.error('Logout error:', error);
+    }
   };
+  
 
   return (
     <AuthContext.Provider value={{ isAuthenticated, login, logout }}>

@@ -10,6 +10,7 @@
     background-color: #f9f9f9;
     border-radius: 8px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    position: relative;
 }
   
 .login-container h1 {
@@ -34,13 +35,28 @@
     display: block;
 }
   
-.login-container input {
+.login-container input,
+.login-container select {
     padding: 8px;
     border: 1px solid #ccc;
     border-radius: 4px;
     font-size: 15px;
     width: 100%;
     box-sizing: border-box;
+}
+
+
+.checkbox-group {
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px; 
+}
+
+.checkbox-group p {
+    margin-bottom: 0; 
+    font-weight:200;
+    color: #555;
+    font-size: 15px;
 }
   
 .login-container button {
@@ -55,6 +71,15 @@
 }
   
 .login-container button:hover {
-    background-color: #357ab8;
+    background-color: #0056b3;
 }
-  
+
+.alpaca-img {
+    width: auto;
+    height: 250px;
+    position: absolute;
+    top: 250px;
+    left: 502px;
+    transform: rotate(90deg);
+
+}

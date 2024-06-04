@@ -1,6 +1,6 @@
 import { NavLink } from "react-router-dom";
 import icon from "../img/lvl2.png";
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from "../context/AuthContext";
 
 export const Navigation = () => {
   const { isAuthenticated, logout } = useAuth();
@@ -9,10 +9,10 @@ export const Navigation = () => {
     <nav className="navbar">
       <ul className="nav-list">
         <li>
-          <img src={icon} alt="Icon" />
-        </li>
-        <li>
-          <NavLink to="/">Home</NavLink>
+          <NavLink to="/">
+            {" "}
+            <img src={icon} alt="Icon" />
+          </NavLink>
         </li>
         <li>
           <NavLink to="/mypages">My Pages</NavLink>
@@ -22,7 +22,9 @@ export const Navigation = () => {
         </li>
         {isAuthenticated ? (
           <li>
-            <button className="logout-btn" onClick={logout}>Log out</button>
+            <button className="logout-btn" onClick={logout}>
+              Log out
+            </button>
           </li>
         ) : (
           <>

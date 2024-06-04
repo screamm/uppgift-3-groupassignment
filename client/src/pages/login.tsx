@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { loginUser } from "../services/api";
 import { useAuth } from "../context/AuthContext";
+import "./Auth.css"; 
 
 export const Login = () => {
   const [email, setEmail] = useState<string>("");
@@ -22,7 +23,7 @@ export const Login = () => {
   };
 
   return (
-    <div>
+    <div className="login-container">
       <h1>Login</h1>
       <form onSubmit={handleSubmit}>
         <div>
@@ -41,9 +42,10 @@ export const Login = () => {
             onChange={(e) => setPassword(e.target.value)}
           />
         </div>
-
         <button type="submit">Login</button>
       </form>
     </div>
   );
 };
+
+export default Login;

@@ -105,41 +105,6 @@ export const Register = () => {
           </select>
         </div>
         <div>
-          <label>Email:</label>
-          <input
-            type="checkbox"
-            checked={acceptTerms}
-            onChange={handleCheckboxChange}
-          />
-        </div>
-        <div>
-          <label>Password:</label>
-          <input
-            type="password"
-            name="password"
-            value={formData.password}
-            onChange={handleChange}
-          />
-        </div>
-        <div>
-          <label>First Name:</label>
-          <input
-            type="text"
-            name="firstName"
-            value={formData.firstName}
-            onChange={handleChange}
-          />
-        </div>
-        <div>
-          <label>Last Name:</label>
-          <input
-            type="text"
-            name="lastName"
-            value={formData.lastName}
-            onChange={handleChange}
-          />
-        </div>
-        <div>
           <label>
             <input
               type="checkbox"

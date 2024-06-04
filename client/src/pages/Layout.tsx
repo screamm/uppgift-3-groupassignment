@@ -1,17 +1,18 @@
 import { Outlet } from "react-router-dom";
 import { Navigation } from "../components/Navigation";
 import "../styles/layout.css";
+import { AuthProvider } from "../context/AuthContext";
 
 
 export const Layout = () => {
   return (
-    <div>
+    <AuthProvider>
       <header className="navbar">
         <Navigation />
       </header>
       <main className="outlet">
         <Outlet />
       </main>
-    </div>
+      </AuthProvider>
   );
 };

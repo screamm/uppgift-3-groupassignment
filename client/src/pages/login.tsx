@@ -1,17 +1,20 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { loginUser } from "../services/api";
+import { useAuth } from "../context/AuthContext";
+
+const navigate = useNavigate();
 
 export const Login = () => {
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
-
-  const navigate = useNavigate();
+  const { login } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
       const response = await loginUser({ email, password });
+      login();
       console.log("Login successful:", response.data);
       navigate("/mypages");
     } catch (error: any) {

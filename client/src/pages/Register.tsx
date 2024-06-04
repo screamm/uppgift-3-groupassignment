@@ -13,7 +13,7 @@ export const Register = () => {
 
   const [acceptTerms, setAcceptTerms] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string>("");
-  const [successMessage, setSuccessMessage] = useState<string>(""); // New state variable for success message
+  const [successMessage, setSuccessMessage] = useState<string>("");
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
@@ -40,7 +40,7 @@ export const Register = () => {
       const response = await registerUser(formData);
       console.log("Registration successful:", response.data);
       setErrorMessage("");
-      setSuccessMessage("Registration successful!"); // Update success message
+      setSuccessMessage("Registration successful!");
     } catch (error: any) {
       console.error(
         "Registration failed:",
@@ -54,10 +54,8 @@ export const Register = () => {
     <div>
       <h1>Register</h1>
       {errorMessage && <p style={{ color: "red" }}>{errorMessage}</p>}
-      {successMessage && (
-        <p style={{ color: "green" }}>{successMessage}</p>
-      )}{" "}
-      {/* Display success message */}
+      {successMessage && <p style={{ color: "green" }}>{successMessage}</p>}
+      {}
       <form onSubmit={handleSubmit}>
         <div>
           <label>Email:</label>

@@ -1,19 +1,19 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom"; // Import useNavigate
+import { useNavigate } from "react-router-dom";
 import { loginUser } from "../services/api";
 
 export const Login = () => {
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
 
-  const navigate = useNavigate(); // Initialize useNavigate
+  const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
       const response = await loginUser({ email, password });
       console.log("Login successful:", response.data);
-      navigate("/mypages"); // Redirect to mypages
+      navigate("/mypages");
     } catch (error: any) {
       console.error("Login failed:", error.response?.data || error.message);
     }

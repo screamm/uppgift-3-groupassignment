@@ -58,7 +58,7 @@ export const Home = () => {
     <>
       <h1>ALPACA NEWS</h1>
       {isLoading ? (
-        <p>Loading products...</p>
+        <div className="loading"></div>
       ) : (
         <div className="container">
           {products.map((product: IProduct, index: number) => (

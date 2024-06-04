@@ -12,7 +12,8 @@
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     position: relative;
 }
-  
+
+
 .login-container h1 {
     text-align: center;
     font-size: 30px;
@@ -22,6 +23,7 @@
 .login-container form {
     display: flex;
     flex-direction: column;
+    padding: 10px;
 }
   
 .form-group {
@@ -78,7 +80,7 @@
     width: auto;
     height: 250px;
     position: absolute;
-    top: 250px;
+    top: 220px;
     left: 502px;
     transform: rotate(90deg);
 

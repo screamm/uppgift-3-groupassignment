@@ -8,12 +8,17 @@ import { IProduct } from "../models/Article";
 
 export const Home = () => {
   const [products, setProducts] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
+    setIsLoading(true);
     fetch("http://localhost:3000/articles/products")
       .then((response) => response.json())
-      .then((data) => setProducts(data.reverse()));
+      .then((data) => {
+        setProducts(data.reverse());
+        setIsLoading(false);
+      });
   }, []);
 
   const getStartedClick = () => {
@@ -52,26 +57,30 @@ export const Home = () => {
   return (
     <>
       <h1>ALPACA NEWS</h1>
-      <div className="container">
-        {products.map((product: IProduct, index: number) => (
-          <div className="subscriptionBox" key={product.id}>
-            <img
-              src={index === 0 ? img1 : index === 1 ? img2 : img3}
-              alt="Product Image"
-            />
-            <h2>{product.name}</h2>
-            <h3>{product.price} kr/week</h3>
-            <ul>
-              {descriptions[index].map((description, i) => (
-                <li key={i}>{description}</li>
-              ))}
-            </ul>
-            <button className="button" onClick={getStartedClick}>
-              GET STARTED
-            </button>
-          </div>
-        ))}
-      </div>
+      {isLoading ? (
+        <p>Loading products...</p>
+      ) : (
+        <div className="container">
+          {products.map((product: IProduct, index: number) => (
+            <div className="subscriptionBox" key={product.id}>
+              <img
+                src={index === 0 ? img1 : index === 1 ? img2 : img3}
+                alt="Product Image"
+              />
+              <h2>{product.name}</h2>
+              <h3>{product.price} kr/week</h3>
+              <ul>
+                {descriptions[index].map((description, i) => (
+                  <li key={i}>{description}</li>
+                ))}
+              </ul>
+              <button className="button" onClick={getStartedClick}>
+                GET STARTED
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
     </>
   );
 };

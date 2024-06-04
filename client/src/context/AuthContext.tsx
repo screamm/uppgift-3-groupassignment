@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, ReactNode } from 'react';
 import { logoutUser } from '../services/api';
+import { useNavigate } from 'react-router-dom';
 
 interface IAuthContext {
   isAuthenticated: boolean;
@@ -11,6 +12,8 @@ const AuthContext = createContext<IAuthContext | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
+  const navigate = useNavigate();
+
 
   const login = () => {
     setIsAuthenticated(true);
@@ -23,6 +26,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       if (response.status === 200) {
         setIsAuthenticated(false);
         console.log('User logged out');
+        navigate("/");
+
       } else {
         console.error('Logout failed with status:', response.status);
       }

@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { Link } from "react-router-dom";
 import { registerUser } from "../services/api";
 import { User } from "../models/User";
 
@@ -54,8 +55,11 @@ export const Register = () => {
     <div>
       <h1>Register</h1>
       {errorMessage && <p style={{ color: "red" }}>{errorMessage}</p>}
-      {successMessage && <p style={{ color: "green" }}>{successMessage}</p>}
-      {}
+      {successMessage && (
+        <p style={{ color: "green" }}>
+          {successMessage} <Link to="/login">Login here</Link>
+        </p>
+      )}
       <form onSubmit={handleSubmit}>
         <div>
           <label>Email:</label>

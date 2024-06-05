@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import Subscription, { ISubscription } from '../models/Subscription';
+import { stripe } from './stripe.controllers';
 
 export const getUserSubscription = async (req: Request, res: Response) => {
   const userId = req.query.userId as string;
@@ -39,3 +40,20 @@ export const updateUserSubscription = async (req: Request, res: Response) => {
     res.status(500).json({ message: 'Server error', error });
   }
 };
+
+// export const createSubscription = async (req: Request, res: Response) => {
+//   try {
+//     const { email, paymentMethod } = req.body;
+
+//     const customer = await stripe.customers.create({
+//       email,
+//     });
+
+//     const subscription = await createSubscription(customer.id, 'price_123456789'); // Replace with your price ID
+
+//     res.status(201).json({ subscription });
+//   } catch (error) {
+//     console.error('Error creating subscription:', error);
+//     res.status(500).send('Error creating subscription.');
+//   }
+// };

@@ -11,6 +11,7 @@
     border-radius: 8px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     position: relative;
+
 }
 
 
@@ -83,5 +84,17 @@
     top: 220px;
     left: 502px;
     transform: rotate(90deg);
+    animation: slideInFromLeft 1s ease-in-out forwards; 
 
+}
+
+@keyframes slideInFromLeft {
+    from {
+        transform: translateX(-100%) rotate(90deg); 
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0) rotate(90deg); 
+        opacity: 1;
+    }
 }

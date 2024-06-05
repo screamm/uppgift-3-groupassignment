@@ -12,14 +12,11 @@ interface CustomRequest extends Request {
 
 export const registerUser = async (req: CustomRequest, res: Response, next: NextFunction): Promise<void> => {
   const { email, password, firstName, lastName, subscriptionId, role } = req.body;
-
   const userExists = await User.findOne({ email });
-
   if (userExists) {
     res.status(400).json({ message: 'User already exists' });
     return;
   }
-
   const user = new User({
     email,
     password,
@@ -43,6 +40,11 @@ export const registerUser = async (req: CustomRequest, res: Response, next: Next
   } catch (error) {
     next(error);
   }
+  //skapa en stripecheckout med 
+//req.body.selectedProduct 
+//1. se till att vi kommer till checkout
+//2. lägg in sub i dbtabell efter verify stripe checkout
+//3. kolla vilka fält som fortfarande är opopulerade/ejinfoisigännu och var vi kan hitta den infon (lookup)
 };
 
 export const loginUser = async (req: CustomRequest, res: Response, next: NextFunction): Promise<void> => {

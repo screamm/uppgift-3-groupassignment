@@ -36,6 +36,7 @@ export const Register = () => {
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
+    //
     e.preventDefault();
     if (!acceptTerms) {
       alert("You must accept the terms and conditions to register.");
@@ -43,7 +44,7 @@ export const Register = () => {
     }
 
     try {
-      const response = await registerUser(formData);
+      const response = await registerUser(formData, selectedProduct);
       console.log("Registration successful:", response.data);
       setErrorMessage("");
       setSuccessMessage("Registration successful!");

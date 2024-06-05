@@ -14,6 +14,8 @@
     "@fortawesome/fontawesome-svg-core": "^6.5.2",
     "@fortawesome/free-solid-svg-icons": "^6.5.2",
     "@fortawesome/react-fontawesome": "^0.2.2",
+    "@stripe/react-stripe-js": "^2.7.1",
+    "@stripe/stripe-js": "github:stripe/stripe-js",
     "axios": "^1.7.2",
     "joi": "^17.13.1",
     "react": "^18.2.0",

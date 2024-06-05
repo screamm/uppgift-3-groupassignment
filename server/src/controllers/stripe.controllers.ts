@@ -7,6 +7,10 @@ import path from 'path';
 import session from 'express-session';
 import dotenv from 'dotenv';
 
+//basic price_1PM53QKydTc2J8RVNTaWWS1l
+//insight price_1PM54lKydTc2J8RVVmmiY0GC
+//elite price_1PM55FKydTc2J8RVCZuLyfd1
+
 dotenv.config();
 
 declare module 'express-session' {

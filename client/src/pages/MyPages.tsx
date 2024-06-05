@@ -37,22 +37,22 @@ export const MyPages = () => {
       <div className="mypages-buttons">
         <p className="mypages-change-text">Change Subscription Level:</p>
         <button
-          onClick={() => handleUpgradeDowngrade('News Site')}
+          onClick={() => handleUpgradeDowngrade('basic')}
           className="mypages-button"
         >
-          News Site
+          Basic
         </button>
         <button
-          onClick={() => handleUpgradeDowngrade('Digital')}
+          onClick={() => handleUpgradeDowngrade('insights')}
           className="mypages-button"
         >
-          Digital
+          Insight
         </button>
         <button
-          onClick={() => handleUpgradeDowngrade('Digital & Paper')}
+          onClick={() => handleUpgradeDowngrade('elite')}
           className="mypages-button"
         >
-          Digital & Paper
+          Elite
         </button>
       </div>
     </div>

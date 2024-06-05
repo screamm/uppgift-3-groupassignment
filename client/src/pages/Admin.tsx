@@ -127,6 +127,10 @@ export const Admin = () => {
                         value={newPageName}
                         onChange={e => setNewPageName(e.target.value)}
                     />
+                    <label>Beskrivning: </label>
+                    <input
+                        type="text"
+                    />
                     <label>Välj prenumeration: </label>
                     <select value={selectedSubscription} onChange={(e) => setSelectedSubscription(parseInt(e.target.value))}>
                         {subscriptions.map((subscription, index) => (

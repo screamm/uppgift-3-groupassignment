@@ -1,6 +1,7 @@
 .container {
     display: flex;
     padding-bottom: 50px;
+    position: relative;
 }
 
 .login-container {
@@ -11,6 +12,8 @@
     border-radius: 8px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     position: relative;
+    z-index: 2;
+
 }
 
 
@@ -83,5 +86,16 @@
     top: 220px;
     left: 502px;
     transform: rotate(90deg);
+    animation: slideInFromLeft 1s ease-in-out forwards; 
+    z-index: 1;
 
+}
+
+@keyframes slideInFromLeft {
+    from {
+        transform: translateX(-100%) rotate(90deg); 
+    }
+    to {
+        transform: translateX(0) rotate(90deg); 
+    }
 }

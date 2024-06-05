@@ -1,8 +1,14 @@
+  //skapa en stripecheckout med 
+//req.body.selectedProduct 
+//1. se till att vi kommer till checkout
+//2. lägg in sub i dbtabell efter verify stripe checkout
+//3. kolla vilka fält som fortfarande är opopulerade/ejinfoisigännu och var vi kan hitta den infon (lookup)
 import { Request, Response, NextFunction } from 'express';
 import bcrypt from 'bcryptjs';
 import User from '../models/User';
-
+import Stripe from 'stripe';
 import { Session, SessionData } from 'express-session';
+import { stripe } from './stripe.controllers';
 
 interface CustomRequest extends Request {
   session: Session & Partial<SessionData> & {
@@ -29,6 +35,21 @@ export const registerUser = async (req: CustomRequest, res: Response, next: Next
   try {
     await user.save();
     req.session.userId = user._id.toString();
+
+    // Create a Stripe checkout session with the selected product's price ID
+    const session = await stripe.checkout.sessions.create({
+      payment_method_types: ['card'],
+      line_items: [
+        {
+          price: req.body.selectedProduct.priceId,
+          quantity: 1,
+        },
+      ],
+      mode: 'subscription',
+      success_url: 'http://localhost:5173/mypages',
+      cancel_url: 'https://www.visit-tochigi.com/plan-your-trip/things-to-do/2035/',
+    });
+
     res.status(201).json({
       _id: user._id,
       email: user.email,
@@ -36,16 +57,17 @@ export const registerUser = async (req: CustomRequest, res: Response, next: Next
       lastName: user.lastName,
       subscriptionId: user.subscriptionId,
       role: user.role,
+      sessionId: session.id, // Return the session ID to the client
     });
   } catch (error) {
     next(error);
   }
+};
   //skapa en stripecheckout med 
 //req.body.selectedProduct 
 //1. se till att vi kommer till checkout
 //2. lägg in sub i dbtabell efter verify stripe checkout
 //3. kolla vilka fält som fortfarande är opopulerade/ejinfoisigännu och var vi kan hitta den infon (lookup)
-};
 
 export const loginUser = async (req: CustomRequest, res: Response, next: NextFunction): Promise<void> => {
   const { email, password } = req.body;

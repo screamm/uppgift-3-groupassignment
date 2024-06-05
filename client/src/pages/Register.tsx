@@ -42,7 +42,6 @@ export const Register = () => {
       alert("You must accept the terms and conditions to register.");
       return;
     }
-
     try {
       const response = await registerUser(formData, selectedProduct);
       console.log("Registration successful:", response.data);

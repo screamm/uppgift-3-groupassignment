@@ -1,36 +1,44 @@
-//FABIAN
-//stripeintegration
 import { Request, Response } from 'express';
 import Stripe from 'stripe';
-import fs from 'fs/promises'; 
+import fs from 'fs/promises';
 import path from 'path';
 import session from 'express-session';
 import dotenv from 'dotenv';
 
-//basic price_1PM53QKydTc2J8RVNTaWWS1l
-//insight price_1PM54lKydTc2J8RVVmmiY0GC
-//elite price_1PM55FKydTc2J8RVCZuLyfd1
-
 dotenv.config();
-
-declare module 'express-session' {
-  interface SessionData {
-    user: {
-      id: string;
-      email: string;
-    };
-  }
-}
-
-declare module 'express' {
-  interface Request {
-    session: session.Session & Partial<session.SessionData>;
-  }
-}
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
   apiVersion: '2024-04-10',
 });
+
+// Skapa en prenumerationsplan i Stripe
+const createSubscription = async (customerId: string, priceId: string): Promise<any> => {
+  try {
+    const subscriptionSchedule = await stripe.subscriptionSchedules.create({
+      customer: customerId,
+      start_date: 'now',
+      end_behavior: 'release',
+      phases: [{
+        items: [{
+          price: priceId,
+          quantity: 1,
+        }],
+        iterations: 52,
+        billing_thresholds: {
+          amount_gte: 10000, // Här använder vi 'amount_gte' istället för 'usage_gte'
+        },
+        // Följande parametrar har tagits bort eftersom de inte är giltiga i detta sammanhang
+        // default_payment_method: 'pm_card_visa',
+        // default_source: 'src_18eYalAHEMiOZZp1l9ZTjSU0',
+        // default_tax_rates: ['txr_18eYalAHEMiOZZp1l9ZTjSU0'],
+      }],
+    });
+    return subscriptionSchedule;
+  } catch (error) {
+    console.error('Error creating subscription:', error);
+    throw error;
+  }
+};
 
 const getSubscriptions = async (req: Request, res: Response): Promise<void> => {
   try {
@@ -43,13 +51,11 @@ const getSubscriptions = async (req: Request, res: Response): Promise<void> => {
       const subscription = priceData.product;
 
       if (typeof subscription === 'string') {
-        // Subscription is just an ID
-        return null; // Or handle this case appropriately
+        return null;
       }
 
       if (subscription.deleted) {
-        // Subscription is deleted
-        return null; // Or handle this case appropriately
+        return null;
       }
 
       return {
@@ -58,7 +64,7 @@ const getSubscriptions = async (req: Request, res: Response): Promise<void> => {
         price: (priceData.unit_amount ?? 0) / 100,
         images: subscription.images,
       };
-    }).filter(subscription => subscription !== null); // Filter out any null values
+    }).filter(subscription => subscription !== null);
 
     res.status(200).json(subscriptionsWithPrice);
   } catch (error) {
@@ -68,12 +74,12 @@ const getSubscriptions = async (req: Request, res: Response): Promise<void> => {
 };
 
 const createCheckoutSession = async (req: Request, res: Response): Promise<void> => {
-    const cart = req.body;
-  
-    if (!req.session || !req.session.user) {
-      res.status(401).end();
-      return;
-    }
+  const cart = req.body;
+
+  if (!req.session || !(req.session as any).user) {
+    res.status(401).end();
+    return;
+  }
 
   try {
     const line_items = await Promise.all(
@@ -105,8 +111,8 @@ const createCheckoutSession = async (req: Request, res: Response): Promise<void>
 
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],
-      customer: req.session.user.id,
-      customer_email: req.session.user.email,
+      customer: (req.session as any).user.id,
+      customer_email: (req.session as any).user.email,
       line_items: line_items,
       allow_promotion_codes: true,
       mode: 'payment',
@@ -150,4 +156,4 @@ const verifySession = async (req: Request, res: Response): Promise<void> => {
   }
 };
 
-export { createCheckoutSession, getSubscriptions, verifySession, stripe };
+export { createCheckoutSession, getSubscriptions, verifySession, stripe, createSubscription };

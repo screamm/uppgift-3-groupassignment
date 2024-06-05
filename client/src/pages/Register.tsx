@@ -1,13 +1,14 @@
-/** @format */
-
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { registerUser } from "../services/api";
 import { User } from "../models/User";
-import "../styles/Auth.css"; 
-import alpaca from "../img/alp.png"
+import "../styles/Auth.css";
+import alpaca from "../img/alp.png";
 
 export const Register = () => {
+  const location = useLocation();
+  const selectedProduct = location.state?.selectedProduct;
+
   const [formData, setFormData] = useState<User>({
     email: "",
     password: "",
@@ -58,9 +59,10 @@ export const Register = () => {
   return (
     <div className="container">
       <div className="login-container">
-      <img className="alpaca-img" src={alpaca} alt="alpaca" />
+        <img className="alpaca-img" src={alpaca} alt="alpaca" />
 
         <h1>Register</h1>
+        {selectedProduct && <h2>Your chosen level: {selectedProduct.name}</h2>}
         {errorMessage && <p style={{ color: "red" }}>{errorMessage}</p>}
         {successMessage && (
           <p style={{ color: "green" }}>
@@ -110,11 +112,9 @@ export const Register = () => {
               checked={acceptTerms}
               onChange={handleCheckboxChange}
             />
-            <p>
-              I accept the terms and conditions for storing personal data.
-            </p>
+            <p>I accept the terms and conditions for storing personal data.</p>
           </div>
-          <button type="submit">Register</button>
+          <button type="submit">Register & Pay</button>
         </form>
       </div>
     </div>

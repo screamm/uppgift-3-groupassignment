@@ -21,8 +21,8 @@ export const Home = () => {
       });
   }, []);
 
-  const getStartedClick = () => {
-    navigate("/register");
+  const getStartedClick = (product: IProduct) => {
+    navigate("/register", { state: { selectedProduct: product } });
   };
 
   const descriptions = [
@@ -74,7 +74,9 @@ export const Home = () => {
                   <li key={i}>{description}</li>
                 ))}
               </ul>
-              <button className="button" onClick={getStartedClick}>
+              <button
+                className="button"
+                onClick={() => getStartedClick(product)}>
                 GET STARTED
               </button>
             </div>

@@ -3,6 +3,10 @@ import { IArticle } from '../models/Article';
 import Article from '../models/Article';
 import { stripe } from './stripe.controllers';
 
+//basic price_1PM53QKydTc2J8RVNTaWWS1l
+//insight price_1PM54lKydTc2J8RVVmmiY0GC
+//elite price_1PM55FKydTc2J8RVCZuLyfd1
+
 export const getAllProducts = async (): Promise<any[]> => {
     try {
         const products = await stripe.products.list();

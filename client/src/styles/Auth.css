@@ -94,10 +94,8 @@
 @keyframes slideInFromLeft {
     from {
         transform: translateX(-100%) rotate(90deg); 
-        opacity: 0;
     }
     to {
         transform: translateX(0) rotate(90deg); 
-        opacity: 1;
     }
 }

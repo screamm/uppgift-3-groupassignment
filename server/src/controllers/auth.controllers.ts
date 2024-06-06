@@ -1,8 +1,3 @@
-  //skapa en stripecheckout med 
-//req.body.selectedProduct 
-//1. se till att vi kommer till checkout
-//2. lägg in sub i dbtabell efter verify stripe checkout
-//3. kolla vilka fält som fortfarande är opopulerade/ejinfoisigännu och var vi kan hitta den infon (lookup)
 import { Request, Response, NextFunction } from 'express';
 import bcrypt from 'bcryptjs';
 import User from '../models/User';
@@ -36,18 +31,29 @@ export const registerUser = async (req: CustomRequest, res: Response, next: Next
     await user.save();
     req.session.userId = user._id.toString();
 
-    // Create a Stripe checkout session with the selected product's price ID
+    // Kontrollera att selectedProduct och priceId finns
+    console.log("Selected product in backend:", req.body.selectedProduct); // Debug: logga den valda produkten
+
+    if (!req.body.selectedProduct || !req.body.selectedProduct.priceId) {
+      res.status(400).json({ message: 'Selected product or priceId is missing' });
+      return;
+    }
+
+    // Create a Stripe checkout session with the selected product's priceId
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],
       line_items: [
         {
-          price: req.body.selectedProduct.priceId,
+          price: req.body.selectedProduct.priceId, // Vi använder priceId direkt här
           quantity: 1,
         },
       ],
       mode: 'subscription',
       success_url: 'http://localhost:5173/mypages',
       cancel_url: 'https://www.visit-tochigi.com/plan-your-trip/things-to-do/2035/',
+      metadata: {
+        subscriptionLevel: req.body.selectedProduct.name,
+      },
     });
 
     res.status(201).json({
@@ -63,6 +69,9 @@ export const registerUser = async (req: CustomRequest, res: Response, next: Next
     next(error);
   }
 };
+
+
+
   //skapa en stripecheckout med 
 //req.body.selectedProduct 
 //1. se till att vi kommer till checkout

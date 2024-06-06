@@ -7,22 +7,28 @@ import { useNavigate } from "react-router-dom";
 import { IProduct } from "../models/Article";
 
 export const Home = () => {
-  const [products, setProducts] = useState([]);
+  const [products, setProducts] = useState<IProduct[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
     setIsLoading(true);
-    fetch("http://localhost:3000/articles/products")
+    fetch("http://localhost:3000/stripe/subscriptions")
       .then((response) => response.json())
       .then((data) => {
+        console.log("Fetched products:", data);
         setProducts(data.reverse());
         setIsLoading(false);
       });
   }, []);
 
   const getStartedClick = (product: IProduct) => {
-    navigate("/register", { state: { selectedProduct: product } });
+    console.log("Selected product:", product);
+    if (product.priceId) {
+      navigate("/register", { state: { selectedProduct: product } });
+    } else {
+      console.error("Selected product is missing priceId");
+    }
   };
 
   const descriptions = [
@@ -63,8 +69,10 @@ export const Home = () => {
           {products.map((product: IProduct, index: number) => (
             <div className="subscriptionBox" key={product.id}>
               <img
+                className="productImage"
                 src={index === 0 ? img1 : index === 1 ? img2 : img3}
                 alt="Product Image"
+                onClick={() => getStartedClick(product)}
               />
               <h2>{product.name}</h2>
               <h3>{product.price} kr/week</h3>
@@ -73,9 +81,7 @@ export const Home = () => {
                   <li key={i}>{description}</li>
                 ))}
               </ul>
-              <button
-                className="button"
-                onClick={() => getStartedClick(product)}>
+              <button className="button" onClick={() => getStartedClick(product)}>
                 GET STARTED
               </button>
             </div>

@@ -5,7 +5,14 @@
   gap: 20px; 
   margin-bottom: 50px;
   position: relative; 
+
 }
+
+.productImage {
+  cursor:pointer;
+
+}
+
 
 .subscriptionBox {
   border: 1px solid #ccc;

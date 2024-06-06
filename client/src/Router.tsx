@@ -5,8 +5,9 @@ import { MyPages } from "./pages/MyPages";
 import { Layout } from "./pages/Layout";
 import { Admin } from "./pages/Admin";
 import { Contact } from "./pages/Contact";
-import { Login } from "./pages/login";
+import { Login } from "./pages/login"; 
 import { Register } from "./pages/Register";
+import { Checkout } from "./pages/Checkout"; // Importera Checkout-komponenten
 
 export const router = createBrowserRouter([
   {
@@ -39,6 +40,10 @@ export const router = createBrowserRouter([
       {
         path: "/register",
         element: <Register />,
+      },
+      {
+        path: "/checkout", 
+        element: <Checkout />,
       },
     ],
   },

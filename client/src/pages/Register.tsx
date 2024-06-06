@@ -1,7 +1,5 @@
-/** @format */
-
-import React, { useState } from "react";
-import { Link, useLocation } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { registerUser } from "../services/api";
 import { User } from "../models/User";
 import "../styles/Auth.css";
@@ -9,6 +7,7 @@ import alpaca from "../img/alp.png";
 
 export const Register = () => {
   const location = useLocation();
+  const navigate = useNavigate();
   const selectedProduct = location.state?.selectedProduct;
 
   const [formData, setFormData] = useState<User>({
@@ -22,6 +21,13 @@ export const Register = () => {
   const [acceptTerms, setAcceptTerms] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string>("");
   const [successMessage, setSuccessMessage] = useState<string>("");
+
+  useEffect(() => {
+    console.log("Selected product in Register.tsx:", selectedProduct);
+    if (!selectedProduct) {
+      setErrorMessage("No product selected or missing priceId.");
+    }
+  }, [selectedProduct]);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
@@ -38,22 +44,27 @@ export const Register = () => {
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
-    //
     e.preventDefault();
     if (!acceptTerms) {
       alert("You must accept the terms and conditions to register.");
       return;
     }
+
+    if (!selectedProduct || !selectedProduct.priceId) {
+      setErrorMessage("No product selected or missing priceId.");
+      return;
+    }
+
     try {
+      console.log("Submitting registration with selectedProduct:", selectedProduct);
       const response = await registerUser(formData, selectedProduct);
       console.log("Registration successful:", response.data);
       setErrorMessage("");
       setSuccessMessage("Registration successful!");
+
+      navigate("/checkout", { state: { sessionId: response.data.sessionId } });
     } catch (error: any) {
-      console.error(
-        "Registration failed:",
-        error.response?.data || error.message
-      );
+      console.error("Registration failed:", error.response?.data || error.message);
       setErrorMessage(error.response?.data?.message || "Registration failed");
     }
   };
@@ -121,5 +132,5 @@ export const Register = () => {
     </div>
   );
 };
-
+ 
 export default Register;

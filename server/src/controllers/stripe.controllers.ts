@@ -4,8 +4,12 @@ import fs from 'fs/promises';
 import path from 'path';
 import session from 'express-session';
 import dotenv from 'dotenv';
+import Subscription from '../models/Subscription';
+import { getAllProducts } from './articles.controllers';
 
 dotenv.config();
+
+console.log("Stripe Secret Key:", process.env.STRIPE_SECRET_KEY); // Kontrollera att nyckeln laddas
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
   apiVersion: '2024-04-10',
@@ -25,12 +29,8 @@ const createSubscription = async (customerId: string, priceId: string): Promise<
         }],
         iterations: 52,
         billing_thresholds: {
-          amount_gte: 10000, // Här använder vi 'amount_gte' istället för 'usage_gte'
+          amount_gte: 10000,
         },
-        // Följande parametrar har tagits bort eftersom de inte är giltiga i detta sammanhang
-        // default_payment_method: 'pm_card_visa',
-        // default_source: 'src_18eYalAHEMiOZZp1l9ZTjSU0',
-        // default_tax_rates: ['txr_18eYalAHEMiOZZp1l9ZTjSU0'],
       }],
     });
     return subscriptionSchedule;
@@ -42,31 +42,8 @@ const createSubscription = async (customerId: string, priceId: string): Promise<
 
 const getSubscriptions = async (req: Request, res: Response): Promise<void> => {
   try {
-    const subscriptionPriceData = await stripe.prices.list({
-      expand: ['data.product'],
-      limit: 100,
-    });
-
-    const subscriptionsWithPrice = subscriptionPriceData.data.map((priceData) => {
-      const subscription = priceData.product;
-
-      if (typeof subscription === 'string') {
-        return null;
-      }
-
-      if (subscription.deleted) {
-        return null;
-      }
-
-      return {
-        id: subscription.id,
-        name: subscription.name,
-        price: (priceData.unit_amount ?? 0) / 100,
-        images: subscription.images,
-      };
-    }).filter(subscription => subscription !== null);
-
-    res.status(200).json(subscriptionsWithPrice);
+    const productsWithPrices = await getAllProducts();
+    res.status(200).json(productsWithPrices);
   } catch (error) {
     console.error('Error fetching subscriptions:', error);
     res.status(500).send('Error fetching subscriptions.');
@@ -74,49 +51,36 @@ const getSubscriptions = async (req: Request, res: Response): Promise<void> => {
 };
 
 const createCheckoutSession = async (req: Request, res: Response): Promise<void> => {
-  const cart = req.body;
+  const { selectedProduct } = req.body;
 
   if (!req.session || !(req.session as any).user) {
     res.status(401).end();
     return;
   }
 
+  console.log("Creating Stripe Checkout Session");
+  console.log("Session User:", (req.session as any).user);
+  console.log("Selected Product:", selectedProduct);
+
   try {
-    const line_items = await Promise.all(
-      cart.map(async (item: any) => {
-        const subscription = await stripe.products.retrieve(item.subscription);
-
-        if (subscription.deleted) {
-          throw new Error('Subscription is deleted');
-        }
-
-        const price = await stripe.prices.list({
-          product: item.subscription,
-          limit: 1,
-        });
-
-        return {
-          price_data: {
-            currency: 'sek',
-            product_data: {
-              name: subscription.name,
-              images: [subscription.images[0]],
-            },
-            unit_amount: (price.data[0].unit_amount ?? 0),
-          },
-          quantity: item.quantity,
-        };
-      })
-    );
-
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],
-      customer: (req.session as any).user.id,
-      customer_email: (req.session as any).user.email,
-      line_items: line_items,
-      allow_promotion_codes: true,
-      mode: 'payment',
+      line_items: [
+        {
+          price: selectedProduct.priceId, // Använd priceId
+          quantity: 1,
+        },
+      ],
+      mode: 'subscription',
+      success_url: 'http://localhost:5173/mypages',
+      cancel_url: 'https://www.visit-tochigi.com/plan-your-trip/things-to-do/2035/',
+      metadata: {
+        subscriptionLevel: selectedProduct.name,
+      },
     });
+
+    console.log("Stripe Checkout Session Created:", session.id);
+    console.log("Stripe Checkout Session URL: " + session.url);
 
     res.json({ sessionId: session.id, url: session.url });
   } catch (error) {
@@ -145,7 +109,21 @@ const verifySession = async (req: Request, res: Response): Promise<void> => {
       orders.push(order);
       await fs.writeFile(ordersFilePath, JSON.stringify(orders, null, 4));
 
-      res.status(200).json({ verified: true });
+      if (session.metadata) {
+        const newSubscription = new Subscription({
+          userId: (req.session as any).userId,
+          level: session.metadata.subscriptionLevel,
+          startDate: new Date(),
+          endDate: new Date(new Date().setFullYear(new Date().getFullYear() + 1)),
+          nextBillingDate: new Date(new Date().setMonth(new Date().getMonth() + 1)),
+        });
+
+        await newSubscription.save();
+
+        res.status(200).json({ verified: true });
+      } else {
+        res.status(400).json({ message: 'Metadata is missing in the session' });
+      }
       return;
     }
 

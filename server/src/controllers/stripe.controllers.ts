@@ -4,7 +4,7 @@ import fs from 'fs/promises';
 import path from 'path';
 import session from 'express-session';
 import dotenv from 'dotenv';
-import Subscription from '../models/Subscription';
+import Subscription, { ISubscription } from '../models/Subscription';
 import { getAllProducts } from './articles.controllers';
 
 dotenv.config();
@@ -104,6 +104,12 @@ const verifySession = async (req: Request, res: Response): Promise<void> => {
         date: new Date(),
       };
 
+      // Spara Stripe-abonnemangs-ID i variabeln stripeId
+      let stripeId = null;
+      if (lineItems.data.length > 0) {
+        stripeId = lineItems.data[0];
+      }
+
       const ordersFilePath = path.join(__dirname, '..', 'data', 'orders.json');
       const orders = JSON.parse(await fs.readFile(ordersFilePath, 'utf-8'));
       orders.push(order);
@@ -116,6 +122,7 @@ const verifySession = async (req: Request, res: Response): Promise<void> => {
           startDate: new Date(),
           endDate: new Date(new Date().setFullYear(new Date().getFullYear() + 1)),
           nextBillingDate: new Date(new Date().setMonth(new Date().getMonth() + 1)),
+          stripeId: stripeId, // Spara Stripe-abonnemangs-ID
         });
 
         await newSubscription.save();
@@ -133,5 +140,6 @@ const verifySession = async (req: Request, res: Response): Promise<void> => {
     res.status(500).send('Error verifying session.');
   }
 };
+
 
 export { createCheckoutSession, getSubscriptions, verifySession, stripe, createSubscription };

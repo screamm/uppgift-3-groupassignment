@@ -59,8 +59,8 @@ const createCheckoutSession = async (req: Request, res: Response): Promise<void>
   }
 
   console.log("Creating Stripe Checkout Session");
-  console.log("Session User:", (req.session as any).user);
-  console.log("Selected Product:", selectedProduct);
+  console.log("Session User: " + JSON.stringify((req.session as any).user));
+  console.log("Selected Product: " + JSON.stringify(selectedProduct));
 
   try {
     const session = await stripe.checkout.sessions.create({
@@ -79,14 +79,21 @@ const createCheckoutSession = async (req: Request, res: Response): Promise<void>
       },
     });
 
-    console.log("Stripe Checkout Session Created:", session.id);
+    console.log("Stripe Checkout Session Created: " + session.id);
+    console.log("Stripe Checkout Session URL: " + session.url);
+
+    // Kontrollera att session.url inte är undefined
+    if (!session.url) {
+      throw new Error('Session URL is undefined');
+    }
 
     res.json({ sessionId: session.id, url: session.url });
-  } catch (error) {
-    console.error('Error creating checkout session:', error);
+  } catch (error: any) {
+    console.log('Error creating checkout session: ' + error.message);
     res.status(500).send('Error creating checkout session.');
   }
 };
+
 
 const verifySession = async (req: Request, res: Response): Promise<void> => {
   try {

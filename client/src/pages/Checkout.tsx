@@ -11,7 +11,8 @@ export const Checkout = () => {
       return;
     }
 
-    window.location.href = `https://checkout.stripe.com/pay/${sessionId}`;
+    // Omdirigera användaren till Stripe Checkout-sidan
+    window.location.replace(`https://checkout.stripe.com/pay/${sessionId}`);
   }, [sessionId]);
 
   return (

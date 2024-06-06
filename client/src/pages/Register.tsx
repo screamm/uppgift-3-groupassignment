@@ -56,7 +56,10 @@ export const Register = () => {
     }
 
     try {
-      console.log("Submitting registration with selectedProduct:", selectedProduct);
+      console.log(
+        "Submitting registration with selectedProduct:",
+        selectedProduct
+      );
       const response = await registerUser(formData, selectedProduct);
       console.log("Registration successful:", response.data);
 
@@ -67,9 +70,14 @@ export const Register = () => {
       console.log("Session ID:", response.data.sessionId);
       console.log("Redirect URL:", response.data.url);
 
-      navigate("/checkout", { state: { sessionId: response.data.sessionId, url: response.data.url } });
+      navigate("/checkout", {
+        state: { sessionId: response.data.sessionId, url: response.data.url },
+      });
     } catch (error: any) {
-      console.error("Registration failed:", error.response?.data || error.message);
+      console.error(
+        "Registration failed:",
+        error.response?.data || error.message
+      );
       setErrorMessage(error.response?.data?.message || "Registration failed");
     }
   };

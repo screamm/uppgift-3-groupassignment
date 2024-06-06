@@ -1,3 +1,5 @@
+/** @format */
+
 import React, { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { registerUser } from "../services/api";
@@ -58,9 +60,8 @@ export const Register = () => {
 
   return (
     <div className="container">
+      <img className="alpaca-img" src={alpaca} alt="alpaca" />
       <div className="login-container">
-        <img className="alpaca-img" src={alpaca} alt="alpaca" />
-
         <h1>Register</h1>
         {selectedProduct && <h2>Your chosen level: {selectedProduct.name}</h2>}
         {errorMessage && <p style={{ color: "red" }}>{errorMessage}</p>}

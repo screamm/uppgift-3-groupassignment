@@ -27,7 +27,6 @@ export const Home = () => {
 
   const descriptions = [
     [
-      "2 months for 1 kr then 50% off for 3 months. After that, regular price 149 kr/month. No commitment.",
       "Access to all articles on Alpaca News website and in the app",
       "E-newspaper all week - our digital version of the paper newspaper",
       "Share your subscription with 2 family members",

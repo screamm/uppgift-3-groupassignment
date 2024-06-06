@@ -9,8 +9,7 @@ import { getAllProducts } from './articles.controllers';
 
 dotenv.config();
 
-console.log("Stripe Secret Key:", process.env.STRIPE_SECRET_KEY); // Lägg till denna rad för felsökning
-
+console.log("Stripe Secret Key:", process.env.STRIPE_SECRET_KEY); // Kontrollera att nyckeln laddas
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
   apiVersion: '2024-04-10',
@@ -62,15 +61,13 @@ const createCheckoutSession = async (req: Request, res: Response): Promise<void>
   console.log("Creating Stripe Checkout Session");
   console.log("Session User:", (req.session as any).user);
   console.log("Selected Product:", selectedProduct);
-  console.log("Session User: " + JSON.stringify((req.session as any).user));
-  console.log("Selected Product: " + JSON.stringify(selectedProduct));
 
   try {
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],
       line_items: [
         {
-          price: selectedProduct.priceId,
+          price: selectedProduct.priceId, // Använd priceId
           quantity: 1,
         },
       ],
@@ -83,13 +80,7 @@ const createCheckoutSession = async (req: Request, res: Response): Promise<void>
     });
 
     console.log("Stripe Checkout Session Created:", session.id);
-
     console.log("Stripe Checkout Session URL: " + session.url);
-
-    // Kontrollera att session.url inte är undefined
-    if (!session.url) {
-      throw new Error('Session URL is undefined');
-    }
 
     res.json({ sessionId: session.id, url: session.url });
   } catch (error) {
@@ -97,7 +88,6 @@ const createCheckoutSession = async (req: Request, res: Response): Promise<void>
     res.status(500).send('Error creating checkout session.');
   }
 };
-
 
 const verifySession = async (req: Request, res: Response): Promise<void> => {
   try {

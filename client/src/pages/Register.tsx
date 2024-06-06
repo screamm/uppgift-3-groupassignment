@@ -60,10 +60,6 @@ export const Register = () => {
       const response = await registerUser(formData, selectedProduct);
       console.log("Registration successful:", response.data);
 
-
-
-      
-
       setErrorMessage("");
       setSuccessMessage("Registration successful!");
 

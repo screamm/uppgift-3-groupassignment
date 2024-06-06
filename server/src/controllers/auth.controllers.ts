@@ -56,6 +56,8 @@ export const registerUser = async (req: CustomRequest, res: Response, next: Next
       },
     });
 
+    console.log("Stripe Checkout Session Created:", session.id);
+
     res.status(201).json({
       _id: user._id,
       email: user.email,
@@ -64,6 +66,7 @@ export const registerUser = async (req: CustomRequest, res: Response, next: Next
       subscriptionId: user.subscriptionId,
       role: user.role,
       sessionId: session.id, // Return the session ID to the client
+      url: session.url, // Lägg till URL här
     });
   } catch (error) {
     next(error);

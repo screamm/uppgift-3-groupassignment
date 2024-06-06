@@ -6,6 +6,7 @@ export interface ISubscription extends Document {
   startDate: Date;
   endDate: Date;
   nextBillingDate: Date;
+  stripeId: string; 
 }
 
 const SubscriptionSchema: Schema = new Schema({
@@ -13,7 +14,8 @@ const SubscriptionSchema: Schema = new Schema({
   level: { type: String, required: true, enum: ['News Site', 'Digital', 'Digital & Paper'] },
   startDate: { type: Date, required: true },
   endDate: { type: Date, required: true },
-  nextBillingDate: { type: Date, required: true }
+  nextBillingDate: { type: Date, required: true },
+  stripeId: { type: String, required: true }, // Lägg till stripeId-fältet här
 }, {
   timestamps: true
 });

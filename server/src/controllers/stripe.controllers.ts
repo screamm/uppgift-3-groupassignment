@@ -84,6 +84,31 @@ const createCheckoutSession = async (req: Request, res: Response): Promise<void>
     console.log("Stripe Checkout Session Created:", session.id);
     console.log("Stripe Checkout Session URL: " + session.url);
 
+    // Update the user document with the Stripe subscription ID
+    const user = await User.findById((req.session as any).userId);
+    if (user) {
+      console.log("Found user:", user);
+      user.stripeId = session.id; // Update the user document with the Stripe subscription ID
+      console.log("Updating user document with stripeId:", user.stripeId);
+      await user.save().then(() => {
+        console.log("User document updated with stripeId");
+      }).catch((err) => {
+        console.error("Error updating user document:", err);
+      });
+    }
+
+    // Create a new Subscription document
+    const newSubscription = new Subscription({
+      userId: (req.session as any).userId,
+      level: selectedProduct.name,
+      startDate: new Date(),
+      endDate: new Date(new Date().setFullYear(new Date().getFullYear() + 1)),
+      nextBillingDate: new Date(new Date().setMonth(new Date().getMonth() + 1)),
+      stripeId: session.id,
+    });
+    console.log("Creating new Subscription document:", newSubscription);
+    await newSubscription.save();
+
     res.json({ sessionId: session.id, url: session.url });
   } catch (error) {
     console.error('Error creating checkout session:', error);
@@ -131,7 +156,7 @@ const verifySession = async (req: Request, res: Response): Promise<void> => {
       // Update the user document with the subscription ID
       const user = await User.findById((req.session as any).userId);
       if (user) {
-        user.subscriptionId = (newSubscription._id as mongoose.Types.ObjectId).toString();
+        user.stripeId = (newSubscription._id as mongoose.Types.ObjectId).toString();
         await user.save();
       }
 

@@ -18,23 +18,28 @@ const handleStripeWebhook = async (req: Request, res: Response) => {
   let event: Stripe.Event;
 
   try {
-    event = stripe.webhooks.constructEvent(req.body as Buffer, sig, webhookSecret); 
+    event = stripe.webhooks.constructEvent(req.body as Buffer, sig, webhookSecret);
   } catch (err) {
     if (err instanceof Error) {
-      console.error('Webhook signature verification failed:', err.message); 
+      console.error('Webhook signature verification failed:', err.message);
       return res.status(400).send(`Webhook Error: ${err.message}`);
     } else {
-      console.error('Webhook signature verification failed:', err); 
+      console.error('Webhook signature verification failed:', err);
       return res.status(400).send('Webhook Error: Unknown error');
     }
   }
+
+  console.log(`Received event: ${event.type}`);
 
   switch (event.type) {
     case 'checkout.session.completed':
       const session = event.data.object as Stripe.Checkout.Session;
 
+      console.log(`Checkout session completed with session ID: ${session.id}`);
+
       if (session.payment_status === 'paid') {
-        const userId = session.metadata?.userId;
+        const userId = session.metadata?.userId; 
+        const subscriptionLevel = session.metadata?.subscriptionLevel;
 
         if (!userId) {
           console.error('User ID is missing in session metadata.');
@@ -44,16 +49,17 @@ const handleStripeWebhook = async (req: Request, res: Response) => {
         try {
           const subscription = new Subscription({
             userId: userId,
-            level: session.metadata?.subscriptionLevel,
+            level: subscriptionLevel,
             startDate: new Date(),
             endDate: new Date(new Date().setFullYear(new Date().getFullYear() + 1)),
-            nextBillingDate: new Date(new Date().getTime() + 7 * 24 * 60 * 60 * 1000), 
+            nextBillingDate: new Date(new Date().getTime() + 7 * 24 * 60 * 60 * 1000),
             stripeId: session.subscription,
           });
 
-          await subscription.save(); 
+          await subscription.save();
+          console.log('Subscription saved:', subscription);
 
-          await User.findByIdAndUpdate(userId, { subscriptionId: subscription._id }); 
+          await User.findByIdAndUpdate(userId, { subscriptionId: subscription._id });
 
           const amountTotal = session.amount_total ? session.amount_total / 100 : 0;
 
@@ -65,15 +71,16 @@ const handleStripeWebhook = async (req: Request, res: Response) => {
             status: 'completed',
           });
 
-          await newPayment.save(); 
+          await newPayment.save();
+          console.log('Payment saved:', newPayment);
 
           res.json({ received: true });
         } catch (err) {
           if (err instanceof Error) {
-            console.error('Error saving subscription or payment:', err.message); 
+            console.error('Error saving subscription or payment:', err.message);
             res.status(500).send(`Error saving subscription or payment: ${err.message}`);
           } else {
-            console.error('Error saving subscription or payment:', err); 
+            console.error('Error saving subscription or payment:', err);
             res.status(500).send('Error saving subscription or payment: Unknown error');
           }
         }
@@ -89,6 +96,8 @@ const handleStripeWebhook = async (req: Request, res: Response) => {
 };
 
 export { handleStripeWebhook };
+
+
 
 
 // import { Request, Response } from 'express';

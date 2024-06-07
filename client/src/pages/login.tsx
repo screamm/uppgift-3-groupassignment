@@ -1,5 +1,3 @@
-/** @format */
-
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { loginUser } from "../services/api";
@@ -16,7 +14,8 @@ export const Login = () => {
     e.preventDefault();
     try {
       const response = await loginUser({ email, password });
-      login();
+      const userId = response.data.user._id; // Assume the user ID is in response.data.user._id
+      login(userId);
       console.log("Login successful:", response.data);
       navigate("/mypages");
     } catch (error: any) {

@@ -1,3 +1,5 @@
+// stripe.controllers.ts
+
 import { Request, Response } from 'express';
 import Stripe from 'stripe';
 import fs from 'fs/promises';
@@ -13,7 +15,7 @@ dotenv.config();
 
 console.log("Stripe Secret Key:", process.env.STRIPE_SECRET_KEY); // Kontrollera att nyckeln laddas
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
+export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
   apiVersion: '2024-04-10',
 });
 
@@ -170,6 +172,41 @@ const verifySession = async (req: Request, res: Response): Promise<void> => {
     res.status(500).send('Error verifying session.');
   }
 };
+// Funktion för att uppdatera prenumerationen baserat på händelser från Stripe
+const updateSubscriptionFromStripeEvent = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { eventType, eventData } = req.body;
+
+    // Kontrollera om händelsen är relevant för prenumerationsuppdatering
+    if (eventType === 'invoice.payment_succeeded' && eventData && eventData.subscription) {
+      const subscriptionId = eventData.subscription as string;
+
+      // Hämta information om prenumerationen från Stripe
+      const subscription = await stripe.subscriptions.retrieve(subscriptionId);
+      const nextBillingDate = new Date(subscription.current_period_end * 1000);
+
+      // Uppdatera prenumerationen i databasen
+      const updatedSubscription = await Subscription.findOneAndUpdate(
+        { stripeId: subscriptionId },
+        { nextBillingDate },
+        { new: true }
+      );
+
+      if (updatedSubscription) {
+        console.log('Subscription updated successfully:', updatedSubscription);
+        res.status(200).send('Subscription updated successfully.');
+      } else {
+        console.error('Failed to update subscription.');
+        res.status(500).send('Failed to update subscription.');
+      }
+    } else {
+      res.status(400).send('Invalid event type or missing subscription data.');
+    }
+  } catch (error) {
+    console.error('Error updating subscription from Stripe event:', error);
+    res.status(500).send('Error updating subscription from Stripe event.');
+  }
+};
 
 
-export { createCheckoutSession, getSubscriptions, verifySession, stripe, createSubscription };
+export { createCheckoutSession, getSubscriptions, verifySession, createSubscription };

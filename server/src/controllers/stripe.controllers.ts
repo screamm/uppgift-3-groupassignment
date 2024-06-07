@@ -1,3 +1,5 @@
+// stripe.controllers.ts
+
 import { Request, Response } from 'express';
 import Stripe from 'stripe';
 import fs from 'fs/promises';
@@ -6,12 +8,14 @@ import session from 'express-session';
 import dotenv from 'dotenv';
 import Subscription, { ISubscription } from '../models/Subscription';
 import { getAllProducts } from './articles.controllers';
+import User from '../models/User';
+import mongoose from 'mongoose';
 
 dotenv.config();
 
 console.log("Stripe Secret Key:", process.env.STRIPE_SECRET_KEY); // Kontrollera att nyckeln laddas
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
+export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
   apiVersion: '2024-04-10',
 });
 
@@ -53,7 +57,7 @@ const getSubscriptions = async (req: Request, res: Response): Promise<void> => {
 const createCheckoutSession = async (req: Request, res: Response): Promise<void> => {
   const { selectedProduct } = req.body;
 
-  if (!req.session || !(req.session as any).user) {
+  if (!req.session ||!(req.session as any).user) {
     res.status(401).end();
     return;
   }
@@ -71,7 +75,7 @@ const createCheckoutSession = async (req: Request, res: Response): Promise<void>
           quantity: 1,
         },
       ],
-      mode: 'subscription',
+      mode: 'subscription', // Corrected typo
       success_url: 'http://localhost:5173/mypages',
       cancel_url: 'https://www.visit-tochigi.com/plan-your-trip/things-to-do/2035/',
       metadata: {
@@ -81,6 +85,32 @@ const createCheckoutSession = async (req: Request, res: Response): Promise<void>
 
     console.log("Stripe Checkout Session Created:", session.id);
     console.log("Stripe Checkout Session URL: " + session.url);
+
+    // Update the user document with the Stripe subscription ID
+    const user = await User.findById((req.session as any).userId);
+    if (user) {
+      console.log("Found user:", user);
+      user.stripeId = session.id; // Update the user document with the Stripe subscription ID
+      console.log("Updating user document with stripeId:", user.stripeId);
+      try {
+        await user.save();
+        console.log("User document saved successfully!");
+      } catch (err) {
+        console.error("Error saving user document:", err);
+      }
+    }
+
+    // Create a new Subscription document
+    const newSubscription = new Subscription({
+      userId: (req.session as any).userId,
+      level: selectedProduct.name,
+      startDate: new Date(),
+      endDate: new Date(new Date().setFullYear(new Date().getFullYear() + 1)),
+      nextBillingDate: new Date(new Date().setMonth(new Date().getMonth() + 1)),
+      stripeId: session.id,
+    });
+    console.log("Creating new Subscription document:", newSubscription);
+    await newSubscription.save();
 
     res.json({ sessionId: session.id, url: session.url });
   } catch (error) {
@@ -115,31 +145,68 @@ const verifySession = async (req: Request, res: Response): Promise<void> => {
       orders.push(order);
       await fs.writeFile(ordersFilePath, JSON.stringify(orders, null, 4));
 
-      if (session.metadata) {
-        const newSubscription = new Subscription({
-          userId: (req.session as any).userId,
-          level: session.metadata.subscriptionLevel,
-          startDate: new Date(),
-          endDate: new Date(new Date().setFullYear(new Date().getFullYear() + 1)),
-          nextBillingDate: new Date(new Date().setMonth(new Date().getMonth() + 1)),
-          stripeId: stripeId, // Spara Stripe-abonnemangs-ID
-        });
+      const newSubscription = new Subscription({
+        userId: (req.session as any).userId,
+        level: session.metadata?.subscriptionLevel, // Add null check for session.metadata
+        startDate: new Date(),
+        endDate: new Date(new Date().setFullYear(new Date().getFullYear() + 1)),
+        nextBillingDate: new Date(new Date().setMonth(new Date().getMonth() + 1)),
+        stripeId: stripeId, // Spara Stripe-abonnemangs-ID
+      });
 
-        await newSubscription.save();
+      await newSubscription.save();
 
-        res.status(200).json({ verified: true });
-      } else {
-        res.status(400).json({ message: 'Metadata is missing in the session' });
+      // Update the user document with the subscription ID
+      const user = await User.findById((req.session as any).userId);
+      if (user) {
+        user.stripeId = (newSubscription._id as mongoose.Types.ObjectId).toString();
+        await user.save();
       }
-      return;
-    }
 
-    res.status(200).json({ verified: false });
+      res.status(200).json({ verified: true });
+    } else {
+      res.status(200).json({ verified: false });
+    }
   } catch (error) {
     console.error('Error verifying session:', error);
     res.status(500).send('Error verifying session.');
   }
 };
+// Funktion för att uppdatera prenumerationen baserat på händelser från Stripe
+const updateSubscriptionFromStripeEvent = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { eventType, eventData } = req.body;
+
+    // Kontrollera om händelsen är relevant för prenumerationsuppdatering
+    if (eventType === 'invoice.payment_succeeded' && eventData && eventData.subscription) {
+      const subscriptionId = eventData.subscription as string;
+
+      // Hämta information om prenumerationen från Stripe
+      const subscription = await stripe.subscriptions.retrieve(subscriptionId);
+      const nextBillingDate = new Date(subscription.current_period_end * 1000);
+
+      // Uppdatera prenumerationen i databasen
+      const updatedSubscription = await Subscription.findOneAndUpdate(
+        { stripeId: subscriptionId },
+        { nextBillingDate },
+        { new: true }
+      );
+
+      if (updatedSubscription) {
+        console.log('Subscription updated successfully:', updatedSubscription);
+        res.status(200).send('Subscription updated successfully.');
+      } else {
+        console.error('Failed to update subscription.');
+        res.status(500).send('Failed to update subscription.');
+      }
+    } else {
+      res.status(400).send('Invalid event type or missing subscription data.');
+    }
+  } catch (error) {
+    console.error('Error updating subscription from Stripe event:', error);
+    res.status(500).send('Error updating subscription from Stripe event.');
+  }
+};
 
 
-export { createCheckoutSession, getSubscriptions, verifySession, stripe, createSubscription };
+export { createCheckoutSession, getSubscriptions, verifySession, createSubscription };

@@ -41,7 +41,7 @@ export const updateUserSubscription = async (req: Request, res: Response) => {
   }
 };
 
-
+//url to paste into POSTMAN http://localhost:3000/subscription/create-hardcoded-subscription 
 export const createHardcodedSubscription = async (req: Request, res: Response) => {
   try {
     // Skapa en hårdkodad prenumeration

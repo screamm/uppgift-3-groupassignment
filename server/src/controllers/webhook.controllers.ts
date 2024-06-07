@@ -43,7 +43,7 @@ const handleStripeWebhook = async (req: Request, res: Response) => {
             level: session.metadata?.subscriptionLevel,
             startDate: new Date(),
             endDate: new Date(new Date().setFullYear(new Date().getFullYear() + 1)),
-            nextBillingDate: new Date(new Date().setMonth(new Date().getMonth() + 1)),
+            nextBillingDate: new Date(new Date().getTime() + 7 * 24 * 60 * 60 * 1000), // Set next billing date to 7 days from now
           });
 
           await subscription.save();

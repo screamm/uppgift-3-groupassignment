@@ -41,6 +41,29 @@ export const updateUserSubscription = async (req: Request, res: Response) => {
   }
 };
 
+
+export const createHardcodedSubscription = async (req: Request, res: Response) => {
+  try {
+    // Skapa en hårdkodad prenumeration
+    const hardcodedSubscription: ISubscription = new Subscription({
+      userId: '123456789', // Använd ett befintligt användar-ID från din databas
+      level: 'Digital', // Välj den prenumerationsnivå du vill testa
+      startDate: new Date(),
+      endDate: new Date(new Date().setFullYear(new Date().getFullYear() + 1)),
+      nextBillingDate: new Date(new Date().setMonth(new Date().getMonth() + 1)),
+      stripeId: 'hardcoded_stripe_id', // Hårdkodat Stripe-prenumerations-ID för teständamål
+    });
+
+    // Spara den hårdkodade prenumerationen i databasen
+    await hardcodedSubscription.save();
+
+    res.status(201).json({ message: 'Hardcoded subscription created successfully.' });
+  } catch (error) {
+    console.error('Error creating hardcoded subscription:', error);
+    res.status(500).send('Error creating hardcoded subscription.');
+  }
+};
+
 // export const createSubscription = async (req: Request, res: Response) => {
 //   try {
 //     const { email, paymentMethod } = req.body;

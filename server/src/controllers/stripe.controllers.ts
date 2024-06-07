@@ -6,6 +6,8 @@ import session from 'express-session';
 import dotenv from 'dotenv';
 import Subscription, { ISubscription } from '../models/Subscription';
 import { getAllProducts } from './articles.controllers';
+import User from '../models/User';
+import mongoose from 'mongoose';
 
 dotenv.config();
 
@@ -115,26 +117,28 @@ const verifySession = async (req: Request, res: Response): Promise<void> => {
       orders.push(order);
       await fs.writeFile(ordersFilePath, JSON.stringify(orders, null, 4));
 
-      if (session.metadata) {
-        const newSubscription = new Subscription({
-          userId: (req.session as any).userId,
-          level: session.metadata.subscriptionLevel,
-          startDate: new Date(),
-          endDate: new Date(new Date().setFullYear(new Date().getFullYear() + 1)),
-          nextBillingDate: new Date(new Date().setMonth(new Date().getMonth() + 1)),
-          stripeId: stripeId, // Spara Stripe-abonnemangs-ID
-        });
+      const newSubscription = new Subscription({
+        userId: (req.session as any).userId,
+        level: session.metadata?.subscriptionLevel, // Add null check for session.metadata
+        startDate: new Date(),
+        endDate: new Date(new Date().setFullYear(new Date().getFullYear() + 1)),
+        nextBillingDate: new Date(new Date().setMonth(new Date().getMonth() + 1)),
+        stripeId: stripeId, // Spara Stripe-abonnemangs-ID
+      });
 
-        await newSubscription.save();
+      await newSubscription.save();
 
-        res.status(200).json({ verified: true });
-      } else {
-        res.status(400).json({ message: 'Metadata is missing in the session' });
+      // Update the user document with the subscription ID
+      const user = await User.findById((req.session as any).userId);
+      if (user) {
+        user.subscriptionId = (newSubscription._id as mongoose.Types.ObjectId).toString();
+        await user.save();
       }
-      return;
-    }
 
-    res.status(200).json({ verified: false });
+      res.status(200).json({ verified: true });
+    } else {
+      res.status(200).json({ verified: false });
+    }
   } catch (error) {
     console.error('Error verifying session:', error);
     res.status(500).send('Error verifying session.');

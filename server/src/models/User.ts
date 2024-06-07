@@ -2,23 +2,25 @@ import mongoose, { Schema, Document } from 'mongoose';
 import bcrypt from 'bcryptjs';
 
 export interface IUser extends Document {
-  _id: string; 
+  _id: string;
   subscriptionId: string;
   email: string;
   firstName: string;
   lastName: string;
   password: string;
   role: string;
+  stripeId: string; // Add this field
   matchPassword(enteredPassword: string): Promise<boolean>;
 }
 
 const UserSchema: Schema<IUser> = new Schema({
-  subscriptionId: { type: String }, //removed required for testing
+  subscriptionId: { type: String },
   email: { type: String, required: true, unique: true },
   firstName: { type: String, required: true },
   lastName: { type: String, required: true },
   password: { type: String, required: true },
   role: { type: String, required: true },
+  stripeId: { type: String }, // Add this field
 }, {
   timestamps: true,
 });

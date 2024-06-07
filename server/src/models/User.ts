@@ -1,11 +1,12 @@
-// user.model.ts
+import { ISubscription } from './Subscription';
 import mongoose, { Schema, Document } from 'mongoose';
 import bcrypt from 'bcryptjs';
 import Subscription from '../models/Subscription'; // Import the Subscription model
 
 export interface IUser extends Document {
   _id: string;
-  subscriptionId: string;
+  subscriptionId: string; // Add a subscriptionId field to store the Subscription document ID
+  subscription: ISubscription; // Add a subscription field to store the associated Subscription document
   email: string;
   firstName: string;
   lastName: string;
@@ -17,6 +18,7 @@ export interface IUser extends Document {
 
 const UserSchema: Schema<IUser> = new Schema({
   subscriptionId: { type: String },
+  subscription: { type: Schema.Types.ObjectId, ref: 'Subscription' }, // Add a subscription field to store the associated Subscription document
   email: { type: String, required: true, unique: true },
   firstName: { type: String, required: true },
   lastName: { type: String, required: true },

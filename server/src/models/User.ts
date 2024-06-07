@@ -1,5 +1,7 @@
+// user.model.ts
 import mongoose, { Schema, Document } from 'mongoose';
 import bcrypt from 'bcryptjs';
+import Subscription from '../models/Subscription'; // Import the Subscription model
 
 export interface IUser extends Document {
   _id: string;
@@ -9,7 +11,7 @@ export interface IUser extends Document {
   lastName: string;
   password: string;
   role: string;
-  stripeId: string; // Add this field
+  stripeId: string;
   matchPassword(enteredPassword: string): Promise<boolean>;
 }
 
@@ -20,7 +22,7 @@ const UserSchema: Schema<IUser> = new Schema({
   lastName: { type: String, required: true },
   password: { type: String, required: true },
   role: { type: String, required: true },
-  stripeId: { type: String }, // Add this field
+  stripeId: { type: String },
 }, {
   timestamps: true,
 });
@@ -36,6 +38,19 @@ UserSchema.pre<IUser>('save', async function (next) {
 
   const salt = await bcrypt.genSalt(10);
   this.password = await bcrypt.hash(this.password, salt);
+  next();
+});
+
+UserSchema.pre<IUser>('save', async function (next) {
+  if (!this.isModified('stripeId')) {
+    return next();
+  }
+
+  const subscription = await Subscription.findOne({ userId: this._id });
+  if (subscription) {
+    subscription.stripeId = this.stripeId;
+    await subscription.save();
+  }
   next();
 });
 

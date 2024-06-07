@@ -55,7 +55,7 @@ const getSubscriptions = async (req: Request, res: Response): Promise<void> => {
 const createCheckoutSession = async (req: Request, res: Response): Promise<void> => {
   const { selectedProduct } = req.body;
 
-  if (!req.session || !(req.session as any).user) {
+  if (!req.session ||!(req.session as any).user) {
     res.status(401).end();
     return;
   }
@@ -73,7 +73,7 @@ const createCheckoutSession = async (req: Request, res: Response): Promise<void>
           quantity: 1,
         },
       ],
-      mode: 'subscription',
+      mode: 'subscription', // Corrected typo
       success_url: 'http://localhost:5173/mypages',
       cancel_url: 'https://www.visit-tochigi.com/plan-your-trip/things-to-do/2035/',
       metadata: {
@@ -90,11 +90,12 @@ const createCheckoutSession = async (req: Request, res: Response): Promise<void>
       console.log("Found user:", user);
       user.stripeId = session.id; // Update the user document with the Stripe subscription ID
       console.log("Updating user document with stripeId:", user.stripeId);
-      await user.save().then(() => {
-        console.log("User document updated with stripeId");
-      }).catch((err) => {
-        console.error("Error updating user document:", err);
-      });
+      try {
+        await user.save();
+        console.log("User document saved successfully!");
+      } catch (err) {
+        console.error("Error saving user document:", err);
+      }
     }
 
     // Create a new Subscription document

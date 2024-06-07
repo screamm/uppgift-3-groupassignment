@@ -25,6 +25,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   const login = (id: string) => {
+    console.log('Setting user ID:', id);
     setUserId(id);
     setIsAuthenticated(true);
     sessionStorage.setItem('userId', id);

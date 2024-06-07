@@ -14,7 +14,8 @@ export const Login = () => {
     e.preventDefault();
     try {
       const response = await loginUser({ email, password });
-      const userId = response.data.user._id; // Assume the user ID is in response.data.user._id
+      console.log("API response:", response.data); 
+      const userId = response.data._id; 
       login(userId);
       console.log("Login successful:", response.data);
       navigate("/mypages");

@@ -1,5 +1,3 @@
-// stripe.controllers.ts
-
 import { Request, Response } from 'express';
 import Stripe from 'stripe';
 import fs from 'fs/promises';
@@ -13,13 +11,12 @@ import mongoose from 'mongoose';
 
 dotenv.config();
 
-console.log("Stripe Secret Key:", process.env.STRIPE_SECRET_KEY); // Kontrollera att nyckeln laddas
+console.log("Stripe Secret Key:", process.env.STRIPE_SECRET_KEY);
 
 export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
   apiVersion: '2024-04-10',
 });
 
-// Skapa en prenumerationsplan i Stripe
 const createSubscription = async (customerId: string, priceId: string): Promise<any> => {
   try {
     const subscriptionSchedule = await stripe.subscriptionSchedules.create({
@@ -71,7 +68,7 @@ const createCheckoutSession = async (req: Request, res: Response): Promise<void>
       payment_method_types: ['card'],
       line_items: [
         {
-          price: selectedProduct.priceId, // Använd priceId
+          price: selectedProduct.priceId,
           quantity: 1,
         },
       ],
@@ -84,13 +81,12 @@ const createCheckoutSession = async (req: Request, res: Response): Promise<void>
     });
 
     console.log("Stripe Checkout Session Created:", session.id);
-    console.log("Stripe Checkout Session URL: " + session.url);
+    console.log("Stripe Checkout Session URL:", session.url);
 
-    // Update the user document with the Stripe subscription ID
     const user = await User.findById((req.session as any).userId);
     if (user) {
       console.log("Found user:", user);
-      user.stripeId = session.id; // Update the user document with the Stripe subscription ID
+      user.stripeId = session.id;
       console.log("Updating user document with stripeId:", user.stripeId);
       try {
         await user.save();
@@ -100,7 +96,6 @@ const createCheckoutSession = async (req: Request, res: Response): Promise<void>
       }
     }
 
-    // Create a new Subscription document
     const newSubscription = new Subscription({
       userId: (req.session as any).userId,
       level: selectedProduct.name,
@@ -122,6 +117,7 @@ const createCheckoutSession = async (req: Request, res: Response): Promise<void>
 const verifySession = async (req: Request, res: Response): Promise<void> => {
   try {
     const sessionId = req.body.sessionId || req.query.sessionId;
+    console.log("Verifying session:", sessionId);
     const session = await stripe.checkout.sessions.retrieve(sessionId);
 
     if (session.payment_status === 'paid') {
@@ -143,7 +139,7 @@ const verifySession = async (req: Request, res: Response): Promise<void> => {
       if (!subscription) {
         const newSubscription = new Subscription({
           userId: (req.session as any).userId,
-          level: session.metadata?.subscriptionLevel, // Add null check for session.metadata
+          level: session.metadata?.subscriptionLevel,
           startDate: new Date(),
           endDate: new Date(new Date().setFullYear(new Date().getFullYear() + 1)),
           nextBillingDate: new Date(new Date().setMonth(new Date().getMonth() + 1)),
@@ -152,7 +148,6 @@ const verifySession = async (req: Request, res: Response): Promise<void> => {
 
         await newSubscription.save();
 
-        // Update the user document with the subscription ID
         const user = await User.findById((req.session as any).userId);
         if (user) {
           user.subscriptionId = (newSubscription._id as mongoose.Types.ObjectId).toString();

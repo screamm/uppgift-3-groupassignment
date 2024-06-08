@@ -2,23 +2,31 @@ import { createContext, useContext, useState, ReactNode } from 'react';
 import { logoutUser } from '../services/api';
 import { useNavigate } from 'react-router-dom';
 
+interface User {
+  _id: string;
+  email: string;
+  firstName: string;
+  lastName: string;
+  subscriptionId?: string;
+  role: string;
+  stripeId?: string; // Lägg till stripeId här
+}
+
 interface IAuthContext {
+  user: User | null;
   isAuthenticated: boolean;
-  userId?: string;
-  login: (userId: string) => void;
+  login: (user: User) => void;
   logout: () => void;
 }
 
 const AuthContext = createContext<IAuthContext | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
-  const [userId, setUserId] = useState<string | undefined>(undefined);
+  const [user, setUser] = useState<User | null>(null);
   const navigate = useNavigate();
 
-  const login = (userId: string) => {
-    setIsAuthenticated(true);
-    setUserId(userId);
+  const login = (user: User) => {
+    setUser(user);
   };
 
   const logout = async () => {
@@ -26,8 +34,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       const response = await logoutUser();
 
       if (response.status === 200) {
-        setIsAuthenticated(false);
-        setUserId(undefined);
+        setUser(null);
         console.log('User logged out');
         navigate("/");
       } else {
@@ -39,7 +46,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated, userId, login, logout }}>
+    <AuthContext.Provider value={{ user, isAuthenticated: !!user, login, logout }}>
       {children}
     </AuthContext.Provider>
   );
@@ -52,7 +59,6 @@ export const useAuth = () => {
   }
   return context;
 };
-
 
 
 // import { createContext, useContext, useState, ReactNode, useEffect } from 'react';

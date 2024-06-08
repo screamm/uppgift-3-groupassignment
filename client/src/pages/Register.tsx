@@ -4,11 +4,13 @@ import { registerUser } from "../services/api";
 import { User } from "../models/User";
 import "../styles/Auth.css";
 import alpaca from "../img/alp.png";
+import { useAuth } from '../context/AuthContext';
 
 export const Register = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const selectedProduct = location.state?.selectedProduct;
+  const { login } = useAuth();
 
   const [formData, setFormData] = useState<User>({
     email: "",
@@ -67,8 +69,7 @@ export const Register = () => {
       console.log("Session ID:", response.data.sessionId);
       console.log("Redirect URL:", response.data.url);
 
-      localStorage.setItem('stripeSessionId', response.data.sessionId); // Spara sessionId i localStorage
-      localStorage.setItem('stripeRedirectUrl', response.data.url); // Spara URL i localStorage
+      login(response.data); // Använd login-funktionen från AuthContext
 
       navigate("/checkout", { state: { sessionId: response.data.sessionId, url: response.data.url } });
     } catch (error: any) {

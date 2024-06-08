@@ -5,32 +5,32 @@ import { useAuth } from '../context/AuthContext';
 
 export const MyPages = () => {
   const [subscriptionLevel, setSubscriptionLevel] = useState('');
-  const { userId } = useAuth();
-  const sessionId = localStorage.getItem('stripeSessionId'); // Hämta sessionId från localStorage
+  const { stripeId } = useAuth();
 
   useEffect(() => {
-    if (!sessionId) {
-      console.error('Session ID is missing');
+    console.log("Stripe ID from AuthContext:", stripeId);
+    if (!stripeId) {
+      console.error('Stripe ID is missing');
       return;
     }
 
-    axios.get('http://localhost:3000/subscription/session', { params: { sessionId } })
+    axios.get('http://localhost:3000/subscription/session', { params: { sessionId: stripeId } })
       .then(response => {
         console.log('Response from server:', response.data);
-        setSubscriptionLevel(response.data.subscriptionLevel);
+        setSubscriptionLevel(response.data.subscriptionLevel); // Assuming the response has a 'subscriptionLevel' field
       })
       .catch(error => {
         console.error('There was an error fetching the subscription level!', error);
       });
-  }, [sessionId]);
+  }, [stripeId]);
 
   const handleUpgradeDowngrade = (level: string) => {
-    if (!userId) {
-      console.error('User ID is missing');
+    if (!stripeId) {
+      console.error('Stripe ID is missing');
       return;
     }
 
-    axios.post('http://localhost:3000/subscription', { userId, subscriptionLevel: level })
+    axios.post('http://localhost:3000/subscription', { stripeId, subscriptionLevel: level })
       .then(response => {
         console.log('Updated subscription level to:', level);
         setSubscriptionLevel(level);

@@ -51,6 +51,7 @@ export const registerUser = async (req: CustomRequest, res: Response, next: Next
       },
     });
 
+    console.log("Stripe Checkout Session Created:", session.id);
     user.stripeId = session.id; // Spara sessionId i användardokumentet
     await user.save();
 
@@ -61,10 +62,12 @@ export const registerUser = async (req: CustomRequest, res: Response, next: Next
       lastName: user.lastName,
       subscriptionId: user.subscriptionId,
       role: user.role,
+      stripeId: user.stripeId, // Lägg till stripeId här
       sessionId: session.id,
       url: session.url,
     });
   } catch (error) {
+    console.error('Error during user registration:', error);
     next(error);
   }
 };
@@ -83,7 +86,7 @@ export const loginUser = async (req: CustomRequest, res: Response, next: NextFun
       lastName: user.lastName,
       subscriptionId: user.subscriptionId,
       role: user.role,
-      stripeId: user.stripeId, // Returnera stripeId
+      stripeId: user.stripeId, // Lägg till stripeId här
     });
   } else {
     res.status(401).json({ message: 'Invalid email or password' });
@@ -99,6 +102,8 @@ export const logoutUser = (req: CustomRequest, res: Response): void => {
     }
   });
 };
+
+
 
 
 // Resterande kod för loginUser och logoutUser förblir oförändrad...

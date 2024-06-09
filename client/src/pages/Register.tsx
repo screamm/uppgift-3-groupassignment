@@ -71,7 +71,6 @@ export const Register = () => {
       // Kontrollera att response.data.url är korrekt
       console.log("Session ID:", response.data.sessionId);
       console.log("Redirect URL:", response.data.url);
-      console.log("User Stripe ID:", response.data.stripeId); // Lägg till log för stripeId
 
       login(response.data); // Använd login-funktionen från AuthContext
 

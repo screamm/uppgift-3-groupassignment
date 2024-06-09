@@ -1,10 +1,4 @@
-import {
-  createContext,
-  useContext,
-  useState,
-  ReactNode,
-  useEffect,
-} from "react";
+import { createContext, useContext, useState, ReactNode } from "react";
 import { logoutUser } from "../services/api";
 import { useNavigate } from "react-router-dom";
 
@@ -30,27 +24,11 @@ const AuthContext = createContext<IAuthContext | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
-  const [stripeId, setStripeId] = useState<string | null>(null);
   const navigate = useNavigate();
-
-  useEffect(() => {
-    const storedUser = localStorage.getItem("user");
-    const storedStripeId = localStorage.getItem("stripeId");
-    if (storedUser) {
-      setUser(JSON.parse(storedUser));
-    }
-    if (storedStripeId) {
-      setStripeId(storedStripeId);
-    }
-  }, []);
 
   const login = (user: User) => {
     setUser(user);
-    setStripeId(user.stripeId || null);
-    localStorage.setItem("user", JSON.stringify(user));
-    if (user.stripeId) {
-      localStorage.setItem("stripeId", user.stripeId);
-    }
+    console.log("User logged in with stripeId:", user.stripeId);
   };
 
   const logout = async () => {
@@ -59,9 +37,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
       if (response.status === 200) {
         setUser(null);
-        setStripeId(null);
-        localStorage.removeItem("user");
-        localStorage.removeItem("stripeId");
         console.log("User logged out");
         navigate("/");
       } else {
@@ -74,7 +49,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   return (
     <AuthContext.Provider
-      value={{ user, isAuthenticated: !!user, login, logout, stripeId }}>
+      value={{
+        user,
+        isAuthenticated: !!user,
+        login,
+        logout,
+        stripeId: user?.stripeId || null,
+      }}>
       {children}
     </AuthContext.Provider>
   );

@@ -3,6 +3,7 @@ import Stripe from 'stripe';
 import dotenv from 'dotenv';
 import Subscription from '../models/Subscription';
 import User from '../models/User';
+import Payment from '../models/Payment';
 
 dotenv.config();
 
@@ -17,19 +18,28 @@ const handleStripeWebhook = async (req: Request, res: Response) => {
   let event: Stripe.Event;
 
   try {
-    const payload = JSON.stringify(req.body, null, 2);
-    event = stripe.webhooks.constructEvent(payload, sig, webhookSecret);
-  } catch (error: any) {
-    console.error('Webhook signature verification failed.', error.message);
-    return res.status(400).send(`Webhook Error: ${error.message}`);
+    event = stripe.webhooks.constructEvent(req.body as Buffer, sig, webhookSecret);
+  } catch (err) {
+    if (err instanceof Error) {
+      console.error('Webhook signature verification failed:', err.message);
+      return res.status(400).send(`Webhook Error: ${err.message}`);
+    } else {
+      console.error('Webhook signature verification failed:', err);
+      return res.status(400).send('Webhook Error: Unknown error');
+    }
   }
+
+  console.log(`Received event: ${event.type}`);
 
   switch (event.type) {
     case 'checkout.session.completed':
       const session = event.data.object as Stripe.Checkout.Session;
 
+      console.log(`Checkout session completed with session ID: ${session.id}`);
+
       if (session.payment_status === 'paid') {
-        const userId = session.metadata?.userId;
+        const userId = session.metadata?.userId; 
+        const subscriptionLevel = session.metadata?.subscriptionLevel;
 
         if (!userId) {
           console.error('User ID is missing in session metadata.');
@@ -39,20 +49,40 @@ const handleStripeWebhook = async (req: Request, res: Response) => {
         try {
           const subscription = new Subscription({
             userId: userId,
-            level: session.metadata?.subscriptionLevel,
+            level: subscriptionLevel,
             startDate: new Date(),
             endDate: new Date(new Date().setFullYear(new Date().getFullYear() + 1)),
-            nextBillingDate: new Date(new Date().setMonth(new Date().getMonth() + 1)),
+            nextBillingDate: new Date(new Date().getTime() + 7 * 24 * 60 * 60 * 1000),
+            stripeId: session.subscription,
           });
 
           await subscription.save();
+          console.log('Subscription saved:', subscription);
 
           await User.findByIdAndUpdate(userId, { subscriptionId: subscription._id });
 
+          const amountTotal = session.amount_total ? session.amount_total / 100 : 0;
+
+          const newPayment = new Payment({
+            userId: userId,
+            subscriptionId: subscription._id,
+            amount: amountTotal,
+            transactionDate: new Date(),
+            status: 'completed',
+          });
+
+          await newPayment.save();
+          console.log('Payment saved:', newPayment);
+
           res.json({ received: true });
         } catch (err) {
-          console.error('Error saving subscription:', err);
-          res.status(500).send('Error saving subscription.');
+          if (err instanceof Error) {
+            console.error('Error saving subscription or payment:', err.message);
+            res.status(500).send(`Error saving subscription or payment: ${err.message}`);
+          } else {
+            console.error('Error saving subscription or payment:', err);
+            res.status(500).send('Error saving subscription or payment: Unknown error');
+          }
         }
       } else {
         res.json({ received: true });
@@ -66,3 +96,75 @@ const handleStripeWebhook = async (req: Request, res: Response) => {
 };
 
 export { handleStripeWebhook };
+
+
+
+
+// import { Request, Response } from 'express';
+// import Stripe from 'stripe';
+// import dotenv from 'dotenv';
+// import Subscription from '../models/Subscription';
+// import User from '../models/User';
+
+// dotenv.config();
+
+// const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
+//   apiVersion: '2024-04-10',
+// });
+
+// const handleStripeWebhook = async (req: Request, res: Response) => {
+//   const sig = req.headers['stripe-signature'] as string;
+//   const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET as string;
+
+//   let event: Stripe.Event;
+
+//   try {
+//     const payload = JSON.stringify(req.body, null, 2);
+//     event = stripe.webhooks.constructEvent(payload, sig, webhookSecret);
+//   } catch (error: any) {
+//     console.error('Webhook signature verification failed.', error.message);
+//     return res.status(400).send(`Webhook Error: ${error.message}`);
+//   }
+
+//   switch (event.type) {
+//     case 'checkout.session.completed':
+//       const session = event.data.object as Stripe.Checkout.Session;
+
+//       if (session.payment_status === 'paid') {
+//         const userId = session.metadata?.userId;
+
+//         if (!userId) {
+//           console.error('User ID is missing in session metadata.');
+//           return res.status(400).send('User ID is missing in session metadata.');
+//         }
+
+//         try {
+//           const subscription = new Subscription({
+//             userId: userId,
+//             level: session.metadata?.subscriptionLevel,
+//             startDate: new Date(),
+//             endDate: new Date(new Date().setFullYear(new Date().getFullYear() + 1)),
+//             nextBillingDate: new Date(new Date().setMonth(new Date().getMonth() + 1)),
+//           });
+
+//           await subscription.save();
+
+//           await User.findByIdAndUpdate(userId, { subscriptionId: subscription._id });
+
+//           res.json({ received: true });
+//         } catch (err) {
+//           console.error('Error saving subscription:', err);
+//           res.status(500).send('Error saving subscription.');
+//         }
+//       } else {
+//         res.json({ received: true });
+//       }
+//       break;
+//     default:
+//       console.warn(`Unhandled event type ${event.type}`);
+//       res.json({ received: true });
+//       break;
+//   }
+// };
+
+// export { handleStripeWebhook };

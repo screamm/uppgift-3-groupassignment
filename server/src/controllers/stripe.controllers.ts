@@ -1,9 +1,8 @@
 import { Request, Response } from 'express';
 import Stripe from 'stripe';
 import dotenv from 'dotenv';
-import Subscription, { ISubscription } from '../models/Subscription'; // Ändra importen
-import Level from '../models/Level';
-import User, { IUser } from '../models/User';
+import Subscription, { ISubscription } from '../models/Subscription'; // Updated import
+import User from '../models/User';
 import { getAllProducts } from './articles.controllers';
 import path from 'path';
 import fs from 'fs/promises';
@@ -78,7 +77,7 @@ const createCheckoutSession = async (req: Request, res: Response): Promise<void>
       cancel_url: 'https://www.visit-tochigi.com/plan-your-trip/things-to-do/2035/',
       metadata: {
         userId: userId,
-        subscriptionLevel: selectedProduct.name
+        subscriptionLevel: selectedProduct.name  // Ensure this matches the Subscription model
       },
     });
 
@@ -101,15 +100,9 @@ const createCheckoutSession = async (req: Request, res: Response): Promise<void>
       console.error("Error saving user document:", err);
     }
 
-    const level = await Level.findOne({ name: selectedProduct.name });
-    if (!level) {
-      res.status(400).json({ error: 'Level not found' });
-      return;
-    }
-
     const newSubscription: ISubscription = new Subscription({
       userId: user._id.toString(),
-      level: selectedProduct.name,
+      level: selectedProduct.name,  // Ensure this matches the Subscription model
       startDate: new Date(),
       endDate: new Date(new Date().setFullYear(new Date().getFullYear() + 1)),
       nextBillingDate: new Date(new Date().setMonth(new Date().getMonth() + 1)),
@@ -129,9 +122,6 @@ const createCheckoutSession = async (req: Request, res: Response): Promise<void>
     res.status(500).send('Error creating checkout session.');
   }
 };
-
-
-
 
 const verifySession = async (req: Request, res: Response): Promise<void> => {
   try {
@@ -157,10 +147,10 @@ const verifySession = async (req: Request, res: Response): Promise<void> => {
       if (!subscription) {
         console.log("No existing subscription found, creating new subscription");
         const userId = session.metadata?.userId;
-        const levelId = session.metadata?.levelId; 
-        if (!userId || !levelId) {
-          console.log("User ID is missing in session metadata");
-          res.status(400).send('User ID is missing in session metadata');
+        const subscriptionLevel = session.metadata?.subscriptionLevel;  // Changed to match Subscription model
+        if (!userId || !subscriptionLevel) {
+          console.log("User ID or Subscription Level is missing in session metadata");
+          res.status(400).send('User ID or Subscription Level is missing in session metadata');
           return;
         }
 
@@ -174,7 +164,7 @@ const verifySession = async (req: Request, res: Response): Promise<void> => {
         console.log("Found user:", user);
         subscription = new Subscription({
           userId: user._id.toString(),
-          level: session.metadata?.subscriptionLevel,
+          level: subscriptionLevel,  // Changed to match Subscription model
           startDate: new Date(),
           endDate: new Date(new Date().setFullYear(new Date().getFullYear() + 1)),
           nextBillingDate: new Date(new Date().setMonth(new Date().getMonth() + 1)),
@@ -199,8 +189,6 @@ const verifySession = async (req: Request, res: Response): Promise<void> => {
     res.status(500).json({ message: 'Error verifying session', error: (error as Error).message });
   }
 };
-
-
 
 const updateSubscriptionFromStripeEvent = async (req: Request, res: Response): Promise<void> => {
   try {

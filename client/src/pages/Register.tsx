@@ -68,11 +68,10 @@ export const Register = () => {
       setErrorMessage("");
       setSuccessMessage("Registration successful!");
 
-      // Kontrollera att response.data.url är korrekt
       console.log("Session ID:", response.data.sessionId);
       console.log("Redirect URL:", response.data.url);
 
-      login(response.data); // Använd login-funktionen från AuthContext
+      login(response.data, response.data.sessionId);
 
       navigate("/checkout", {
         state: { sessionId: response.data.sessionId, url: response.data.url },

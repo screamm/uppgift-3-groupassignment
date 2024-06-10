@@ -1,9 +1,8 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
-import { useParams, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 export const Confirmation = () => {
-  const { sessionId } = useParams<{ sessionId: string }>();
   const navigate = useNavigate();
 
   const [status, setStatus] = useState<string>("");
@@ -11,8 +10,15 @@ export const Confirmation = () => {
 
   useEffect(() => {
     const verifyPayment = async () => {
+      const sessionId = localStorage.getItem("stripeSessionId"); // Hämta sessionId från localStorage
       console.log("verifyPayment called");
       console.log("sessionId:", sessionId);
+
+      if (!sessionId) {
+        console.log("Session ID saknas.");
+        setStatus("Session ID saknas.");
+        return;
+      }
 
       try {
         const response = await axios.post(
@@ -34,13 +40,8 @@ export const Confirmation = () => {
       }
     };
 
-    if (sessionId) {
-      verifyPayment();
-    } else {
-      console.log("Session ID saknas.");
-      setStatus("Session ID saknas.");
-    }
-  }, [sessionId]);
+    verifyPayment();
+  }, []);
 
   const handleRedirect = (path: string) => {
     navigate(path);

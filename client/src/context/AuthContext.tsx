@@ -42,7 +42,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const logout = async () => {
     try {
       const response = await logoutUser();
-
       if (response.status === 200) {
         setUser(null);
         setSessionId(null);

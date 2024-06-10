@@ -1,16 +1,14 @@
 import { Request, Response } from 'express';
 import Stripe from 'stripe';
 import dotenv from 'dotenv';
-import Subscription from '../models/Subscription';
+import Subscription, { ISubscription } from '../models/Subscription'; // Ändra importen
 import Level from '../models/Level';
-import User from '../models/User';
+import User, { IUser } from '../models/User';
 import { getAllProducts } from './articles.controllers';
 import path from 'path';
 import fs from 'fs/promises';
 
 dotenv.config();
-
-console.log("Stripe Secret Key:", process.env.STRIPE_SECRET_KEY);
 
 export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
   apiVersion: '2024-04-10',
@@ -64,6 +62,7 @@ const createCheckoutSession = async (req: Request, res: Response): Promise<void>
   console.log("Creating Stripe Checkout Session");
   console.log("Session User:", (req.session as any).user);
   console.log("Selected Product:", selectedProduct);
+  console.log("Metadata to be sent:", { userId, subscriptionLevel: selectedProduct.name });
 
   try {
     const session = await stripe.checkout.sessions.create({
@@ -86,7 +85,7 @@ const createCheckoutSession = async (req: Request, res: Response): Promise<void>
     console.log("Stripe Checkout Session Created:", session.id);
     console.log("Stripe Checkout Session URL:", session.url);
 
-    const user = await User.findById((req.session as any).user._id);
+    const user = await User.findById(userId);
     if (!user) {
       res.status(400).json({ error: 'User not found' });
       return;
@@ -108,7 +107,7 @@ const createCheckoutSession = async (req: Request, res: Response): Promise<void>
       return;
     }
 
-    const newSubscription: Subscription = new Subscription({
+    const newSubscription: ISubscription = new Subscription({
       userId: user._id.toString(),
       level: selectedProduct.name,
       startDate: new Date(),
@@ -130,6 +129,9 @@ const createCheckoutSession = async (req: Request, res: Response): Promise<void>
     res.status(500).send('Error creating checkout session.');
   }
 };
+
+
+
 
 const verifySession = async (req: Request, res: Response): Promise<void> => {
   try {
@@ -186,7 +188,7 @@ const verifySession = async (req: Request, res: Response): Promise<void> => {
         console.log("Updated user with new subscriptionId:", user);
       }
 
-      res.status(200).json({ verified: true });
+      res.status(200).json({ verified: true, stripeId: sessionId });
     } else {
       console.log("Session payment status is not 'paid'");
       res.status(200).json({ verified: false });
@@ -196,6 +198,8 @@ const verifySession = async (req: Request, res: Response): Promise<void> => {
     res.status(500).json({ message: 'Error verifying session', error: (error as Error).message });
   }
 };
+
+
 
 const updateSubscriptionFromStripeEvent = async (req: Request, res: Response): Promise<void> => {
   try {

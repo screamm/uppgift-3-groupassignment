@@ -78,7 +78,7 @@ const createCheckoutSession = async (req: Request, res: Response): Promise<void>
       cancel_url: 'https://www.visit-tochigi.com/plan-your-trip/things-to-do/2035/',
       metadata: {
         userId: userId,
-        subscriptionLevel: selectedProduct.name,
+        subscriptionLevel: selectedProduct.name
       },
     });
 
@@ -157,7 +157,8 @@ const verifySession = async (req: Request, res: Response): Promise<void> => {
       if (!subscription) {
         console.log("No existing subscription found, creating new subscription");
         const userId = session.metadata?.userId;
-        if (!userId) {
+        const levelId = session.metadata?.levelId; 
+        if (!userId || !levelId) {
           console.log("User ID is missing in session metadata");
           res.status(400).send('User ID is missing in session metadata');
           return;

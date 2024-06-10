@@ -1,9 +1,10 @@
 import { Request, Response } from 'express';
 import Stripe from 'stripe';
 import dotenv from 'dotenv';
-import Subscription, { ISubscription } from '../models/Subscription'; // Ändra importen
+import Subscription, { ISubscription } from '../models/Subscription';
 import Level from '../models/Level';
 import User, { IUser } from '../models/User';
+import Payment, { IPayment } from '../models/Payment'; // Importera Payment-modellen
 import { getAllProducts } from './articles.controllers';
 import path from 'path';
 import fs from 'fs/promises';
@@ -78,14 +79,14 @@ const createCheckoutSession = async (req: Request, res: Response): Promise<void>
       cancel_url: 'https://www.visit-tochigi.com/plan-your-trip/things-to-do/2035/',
       metadata: {
         userId: userId,
-        subscriptionLevel: selectedProduct.name,
+        subscriptionLevel: selectedProduct.name
       },
     });
 
     console.log("Stripe Checkout Session Created:", session.id);
     console.log("Stripe Checkout Session URL:", session.url);
 
-    const user = await User.findById(userId);
+    const user: IUser | null = await User.findById(userId);
     if (!user) {
       res.status(400).json({ error: 'User not found' });
       return;
@@ -130,9 +131,6 @@ const createCheckoutSession = async (req: Request, res: Response): Promise<void>
   }
 };
 
-
-
-
 const verifySession = async (req: Request, res: Response): Promise<void> => {
   try {
     const sessionId = req.body.sessionId || req.query.sessionId;
@@ -157,13 +155,14 @@ const verifySession = async (req: Request, res: Response): Promise<void> => {
       if (!subscription) {
         console.log("No existing subscription found, creating new subscription");
         const userId = session.metadata?.userId;
-        if (!userId) {
-          console.log("User ID is missing in session metadata");
-          res.status(400).send('User ID is missing in session metadata');
+        const subscriptionLevel = session.metadata?.subscriptionLevel;
+        if (!userId || !subscriptionLevel) {
+          console.log("User ID or Subscription Level is missing in session metadata");
+          res.status(400).send('User ID or Subscription Level is missing in session metadata');
           return;
         }
 
-        const user = await User.findById(userId);
+        const user: IUser | null = await User.findById(userId);
         if (!user) {
           console.log("User not found for session userId:", userId);
           res.status(400).json({ error: 'User not found' });
@@ -173,7 +172,7 @@ const verifySession = async (req: Request, res: Response): Promise<void> => {
         console.log("Found user:", user);
         subscription = new Subscription({
           userId: user._id.toString(),
-          level: session.metadata?.subscriptionLevel,
+          level: subscriptionLevel,
           startDate: new Date(),
           endDate: new Date(new Date().setFullYear(new Date().getFullYear() + 1)),
           nextBillingDate: new Date(new Date().setMonth(new Date().getMonth() + 1)),
@@ -188,7 +187,26 @@ const verifySession = async (req: Request, res: Response): Promise<void> => {
         console.log("Updated user with new subscriptionId:", user);
       }
 
-      res.status(200).json({ verified: true, stripeId: sessionId });
+      // Kontrollera om betalningen redan existerar för att undvika duplicering
+      const existingPayment = await Payment.findOne({ stripeId: sessionId });
+      if (!existingPayment) {
+        const amount = lineItems.data.reduce((total, item) => total + item.amount_total, 0);
+        const payment = new Payment({
+          userId: subscription.userId,
+          subscriptionId: subscription._id,
+          amount,
+          transactionDate: new Date(),
+          status: 'paid',
+          stripeId: sessionId,
+        });
+
+        await payment.save();
+        console.log("Payment document created:", payment);
+      } else {
+        console.log("Payment document already exists for session:", sessionId);
+      }
+
+      res.status(200).json({ verified: true, stripeId: sessionId, subscriptionLevel: subscription.level });
     } else {
       console.log("Session payment status is not 'paid'");
       res.status(200).json({ verified: false });

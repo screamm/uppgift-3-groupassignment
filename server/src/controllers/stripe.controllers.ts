@@ -86,7 +86,7 @@ const createCheckoutSession = async (req: Request, res: Response): Promise<void>
     console.log("Stripe Checkout Session Created:", session.id);
     console.log("Stripe Checkout Session URL:", session.url);
 
-    const user = await User.findById(userId);
+    const user: IUser | null = await User.findById(userId);
     if (!user) {
       res.status(400).json({ error: 'User not found' });
       return;
@@ -162,7 +162,7 @@ const verifySession = async (req: Request, res: Response): Promise<void> => {
           return;
         }
 
-        const user = await User.findById(userId);
+        const user: IUser | null = await User.findById(userId);
         if (!user) {
           console.log("User not found for session userId:", userId);
           res.status(400).json({ error: 'User not found' });
@@ -187,18 +187,24 @@ const verifySession = async (req: Request, res: Response): Promise<void> => {
         console.log("Updated user with new subscriptionId:", user);
       }
 
-      // Skapa en betalningspost i databasen
-      const amount = lineItems.data.reduce((total, item) => total + item.amount_total, 0);
-      const payment = new Payment({
-        userId: subscription.userId,
-        subscriptionId: subscription._id,
-        amount,
-        transactionDate: new Date(),
-        status: 'paid',
-      });
+      // Kontrollera om betalningen redan existerar för att undvika duplicering
+      const existingPayment = await Payment.findOne({ stripeId: sessionId });
+      if (!existingPayment) {
+        const amount = lineItems.data.reduce((total, item) => total + item.amount_total, 0);
+        const payment = new Payment({
+          userId: subscription.userId,
+          subscriptionId: subscription._id,
+          amount,
+          transactionDate: new Date(),
+          status: 'paid',
+          stripeId: sessionId,
+        });
 
-      await payment.save();
-      console.log("Payment document created:", payment);
+        await payment.save();
+        console.log("Payment document created:", payment);
+      } else {
+        console.log("Payment document already exists for session:", sessionId);
+      }
 
       res.status(200).json({ verified: true, stripeId: sessionId, subscriptionLevel: subscription.level });
     } else {
@@ -210,6 +216,8 @@ const verifySession = async (req: Request, res: Response): Promise<void> => {
     res.status(500).json({ message: 'Error verifying session', error: (error as Error).message });
   }
 };
+
+
 
 const updateSubscriptionFromStripeEvent = async (req: Request, res: Response): Promise<void> => {
   try {

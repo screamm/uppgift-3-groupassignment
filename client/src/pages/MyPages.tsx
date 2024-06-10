@@ -17,7 +17,7 @@ export const MyPages = () => {
     }
 
     axios
-      .get("http://localhost:3000/stripe/verify-session", {
+      .get("http://localhost:3000/subscription/session", {
         params: { sessionId: storedSessionId },
       })
       .then((response) => {

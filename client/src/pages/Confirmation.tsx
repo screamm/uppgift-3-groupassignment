@@ -6,7 +6,7 @@ export const Confirmation = () => {
   const navigate = useNavigate();
 
   const [status, setStatus] = useState<string>("");
-  const [stripeId, setStripeId] = useState<string>("");
+  const [email, setEmail] = useState<string>("");
 
   useEffect(() => {
     const verifyPayment = async () => {
@@ -30,7 +30,7 @@ export const Confirmation = () => {
 
         if (response.data.verified) {
           setStatus("Betalningen gick igenom! Tack för ditt köp!");
-          setStripeId(response.data.stripeId);
+          setEmail(response.data.email);
         } else {
           setStatus("Köpet gick inte igenom. Försök igen.");
         }
@@ -51,7 +51,7 @@ export const Confirmation = () => {
     <div>
       <h1>Betalningsstatus</h1>
       <p>{status}</p>
-      {stripeId && <p>Ditt Stripe ID: {stripeId}</p>}
+      {email && <p>Din e-post: {email}</p>}
       <div>
         {status.includes("Tack för ditt köp!") ? (
           <button onClick={() => handleRedirect("/mypages")}>

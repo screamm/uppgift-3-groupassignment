@@ -4,6 +4,7 @@ import dotenv from 'dotenv';
 import Subscription, { ISubscription } from '../models/Subscription';
 import Level from '../models/Level';
 import User, { IUser } from '../models/User';
+import Payment, { IPayment } from '../models/Payment'; // Importera Payment-modellen
 import { getAllProducts } from './articles.controllers';
 import path from 'path';
 import fs from 'fs/promises';
@@ -185,6 +186,19 @@ const verifySession = async (req: Request, res: Response): Promise<void> => {
         await user.save();
         console.log("Updated user with new subscriptionId:", user);
       }
+
+      // Skapa en betalningspost i databasen
+      const amount = lineItems.data.reduce((total, item) => total + item.amount_total, 0);
+      const payment = new Payment({
+        userId: subscription.userId,
+        subscriptionId: subscription._id,
+        amount,
+        transactionDate: new Date(),
+        status: 'paid',
+      });
+
+      await payment.save();
+      console.log("Payment document created:", payment);
 
       res.status(200).json({ verified: true, stripeId: sessionId, subscriptionLevel: subscription.level });
     } else {

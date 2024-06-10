@@ -31,6 +31,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const login = (user: User, sessionId: string) => {
     setUser(user);
     setSessionId(sessionId);
+    localStorage.setItem("user", JSON.stringify(user));
+    localStorage.setItem("stripeSessionId", sessionId);
     console.log(
       "User logged in with stripeId:",
       user.stripeId,
@@ -45,6 +47,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       if (response.status === 200) {
         setUser(null);
         setSessionId(null);
+        localStorage.removeItem("user");
+        localStorage.removeItem("stripeSessionId");
         console.log("User logged out");
         navigate("/");
       } else {

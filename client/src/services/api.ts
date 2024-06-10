@@ -13,3 +13,13 @@ export const loginUser = (userData: any) => {
 export const logoutUser = () => {
   return axios.post(`${API_URL}/auth/logout`);
 };
+
+export const getUserData = async (sessionId: string) => {
+  try {
+    const response = await axios.get(`${API_URL}/users/session/${sessionId}`, { withCredentials: true });
+    return response.data.user;
+  } catch (error) {
+    console.error('Error fetching user data:', error);
+    throw error;
+  }
+};

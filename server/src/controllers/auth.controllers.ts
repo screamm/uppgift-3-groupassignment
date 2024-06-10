@@ -43,7 +43,7 @@ export const registerUser = async (req: CustomRequest, res: Response, next: Next
         },
       ],
       mode: 'subscription',
-      success_url: 'http://localhost:5173/mypages',
+      success_url: `http://localhost:5173/confirmation/{CHECKOUT_SESSION_ID}`,
       cancel_url: 'https://www.visit-tochigi.com/plan-your-trip/things-to-do/2035/',
       metadata: {
         subscriptionLevel: req.body.selectedProduct.name,

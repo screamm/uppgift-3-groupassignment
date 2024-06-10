@@ -59,6 +59,8 @@ const createCheckoutSession = async (req: Request, res: Response): Promise<void>
     return;
   }
 
+  const userId = (req.session as any).user._id;
+
   console.log("Creating Stripe Checkout Session");
   console.log("Session User:", (req.session as any).user);
   console.log("Selected Product:", selectedProduct);
@@ -76,6 +78,7 @@ const createCheckoutSession = async (req: Request, res: Response): Promise<void>
       success_url: 'http://localhost:5173/mypages',
       cancel_url: 'https://www.visit-tochigi.com/plan-your-trip/things-to-do/2035/',
       metadata: {
+        userId: userId,
         subscriptionLevel: selectedProduct.name,
       },
     });
@@ -105,9 +108,7 @@ const createCheckoutSession = async (req: Request, res: Response): Promise<void>
       return;
     }
 
-    console.log("Found level:", level);
-
-    const newSubscription = new Subscription({
+    const newSubscription: Subscription = new Subscription({
       userId: user._id.toString(),
       level: selectedProduct.name,
       startDate: new Date(),
@@ -133,46 +134,41 @@ const createCheckoutSession = async (req: Request, res: Response): Promise<void>
 const verifySession = async (req: Request, res: Response): Promise<void> => {
   try {
     const sessionId = req.body.sessionId || req.query.sessionId;
+    console.log("Received sessionId:", sessionId);
+
     if (!sessionId) {
+      console.log("No sessionId provided");
       res.status(400).send('Session ID is required');
       return;
     }
 
-    console.log("Verifying session:", sessionId);
+    console.log("Verifying session with Stripe:", sessionId);
     const session = await stripe.checkout.sessions.retrieve(sessionId);
+    console.log("Stripe session retrieved:", session);
 
     if (session.payment_status === 'paid') {
       console.log("Session payment status is 'paid'");
       const lineItems = await stripe.checkout.sessions.listLineItems(sessionId);
       console.log("Line items from session:", lineItems.data);
-      const order = {
-        orderNumber: Math.floor(Math.random() * 100000000),
-        customerName: session.customer_details?.name,
-        subscriptions: lineItems.data,
-        total: session.amount_total,
-        date: new Date(),
-      };
-
-      const ordersFilePath = path.join(__dirname, '..', 'data', 'orders.json');
-      let orders = [];
-      try {
-        const ordersData = await fs.readFile(ordersFilePath, 'utf-8');
-        orders = JSON.parse(ordersData);
-      } catch (err) {
-        console.error('Error reading orders file:', err);
-      }
-      orders.push(order);
-      await fs.writeFile(ordersFilePath, JSON.stringify(orders, null, 4));
-      console.log("Order saved:", order);
 
       let subscription = await Subscription.findOne({ stripeId: sessionId });
       if (!subscription) {
-        const user = await User.findById((req.session as any).user._id);
+        console.log("No existing subscription found, creating new subscription");
+        const userId = session.metadata?.userId;
+        if (!userId) {
+          console.log("User ID is missing in session metadata");
+          res.status(400).send('User ID is missing in session metadata');
+          return;
+        }
+
+        const user = await User.findById(userId);
         if (!user) {
+          console.log("User not found for session userId:", userId);
           res.status(400).json({ error: 'User not found' });
           return;
         }
 
+        console.log("Found user:", user);
         subscription = new Subscription({
           userId: user._id.toString(),
           level: session.metadata?.subscriptionLevel,
@@ -196,8 +192,8 @@ const verifySession = async (req: Request, res: Response): Promise<void> => {
       res.status(200).json({ verified: false });
     }
   } catch (error) {
-    console.error('Error verifying session:', error);
-    res.status(500).send('Error verifying session.');
+    console.error('Error verifying session:', (error as Error).message);
+    res.status(500).json({ message: 'Error verifying session', error: (error as Error).message });
   }
 };
 

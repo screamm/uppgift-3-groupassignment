@@ -72,6 +72,7 @@ export const Register = () => {
       console.log("Redirect URL:", response.data.url);
 
       login(response.data, response.data.sessionId);
+      localStorage.setItem("stripeSessionId", response.data.sessionId);
 
       navigate("/checkout", {
         state: { sessionId: response.data.sessionId, url: response.data.url },

@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import "../styles/mypages.css";
 import { useAuth } from "../context/AuthContext";
+import "./Admin"
 
 export const MyPages = () => {
   const [subscriptionLevel, setSubscriptionLevel] = useState("");
@@ -78,6 +79,10 @@ export const MyPages = () => {
           className="mypages-button">
           Elite
         </button>
+      </div>
+      <h1>My Articles</h1>
+      <div>
+
       </div>
     </div>
   );

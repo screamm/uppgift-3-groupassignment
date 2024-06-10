@@ -4,12 +4,11 @@ import "../styles/mypages.css";
 import { useAuth } from "../context/AuthContext";
 
 export const MyPages = () => {
-  const { sessionId } = useAuth();
+  const { stripeSessionId } = useAuth();
   const [subscriptionLevel, setSubscriptionLevel] = useState("");
 
   useEffect(() => {
-    const storedSessionId =
-      sessionId || localStorage.getItem("stripeSessionId");
+    const storedSessionId = stripeSessionId || localStorage.getItem("stripeSessionId");
     console.log("Session ID from localStorage:", storedSessionId);
     if (!storedSessionId) {
       console.error("Session ID is missing");
@@ -30,11 +29,10 @@ export const MyPages = () => {
           error
         );
       });
-  }, [sessionId]);
+  }, [stripeSessionId]);
 
   const handleUpgradeDowngrade = (level: string) => {
-    const storedSessionId =
-      sessionId || localStorage.getItem("stripeSessionId");
+    const storedSessionId = stripeSessionId || localStorage.getItem("stripeSessionId");
     if (!storedSessionId) {
       console.error("Session ID is missing");
       return;

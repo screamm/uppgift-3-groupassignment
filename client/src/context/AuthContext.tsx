@@ -15,20 +15,28 @@ interface User {
 interface IAuthContext {
   user: User | null;
   isAuthenticated: boolean;
-  login: (user: User) => void;
+  login: (user: User, sessionId: string) => void;
   logout: () => void;
   stripeId: string | null;
+  sessionId: string | null;
 }
 
 const AuthContext = createContext<IAuthContext | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
+  const [sessionId, setSessionId] = useState<string | null>(null);
   const navigate = useNavigate();
 
-  const login = (user: User) => {
+  const login = (user: User, sessionId: string) => {
     setUser(user);
-    console.log("User logged in with stripeId:", user.stripeId);
+    setSessionId(sessionId);
+    console.log(
+      "User logged in with stripeId:",
+      user.stripeId,
+      "and sessionId:",
+      sessionId
+    );
   };
 
   const logout = async () => {
@@ -37,6 +45,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
       if (response.status === 200) {
         setUser(null);
+        setSessionId(null);
         console.log("User logged out");
         navigate("/");
       } else {
@@ -55,6 +64,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         login,
         logout,
         stripeId: user?.stripeId || null,
+        sessionId,
       }}>
       {children}
     </AuthContext.Provider>

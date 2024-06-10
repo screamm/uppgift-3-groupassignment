@@ -51,7 +51,7 @@ export const registerUser = async (req: CustomRequest, res: Response, next: Next
     });
 
     console.log("Stripe Checkout Session Created:", session.id);
-    user.stripeId = session.id; // Spara sessionId i användardokumentet
+    user.stripeId = session.id; 
     await user.save();
 
     res.status(201).json({
@@ -61,7 +61,7 @@ export const registerUser = async (req: CustomRequest, res: Response, next: Next
       lastName: user.lastName,
       subscriptionId: user.subscriptionId,
       role: user.role,
-      stripeId: user.stripeId, // Lägg till stripeId här
+      stripeId: user.stripeId, 
       sessionId: session.id,
       url: session.url,
     });
@@ -85,12 +85,14 @@ export const loginUser = async (req: CustomRequest, res: Response, next: NextFun
       lastName: user.lastName,
       subscriptionId: user.subscriptionId,
       role: user.role,
-      stripeId: user.stripeId, // Lägg till stripeId här
+      stripeId: user.stripeId,
+      sessionId: req.session.id, // Lägg till sessionId här
     });
   } else {
     res.status(401).json({ message: 'Invalid email or password' });
   }
 };
+
 
 export const logoutUser = (req: CustomRequest, res: Response): void => {
   req.session.destroy((err) => {

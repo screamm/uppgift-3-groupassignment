@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import { useEffect } from "react";
 import { useLocation } from "react-router-dom";
 
 export const Checkout = () => {
@@ -24,8 +24,6 @@ export const Checkout = () => {
 };
 
 export default Checkout;
-
-
 
 // import { useEffect } from "react";
 // import { useLocation } from "react-router-dom";

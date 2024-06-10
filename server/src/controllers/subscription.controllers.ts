@@ -58,6 +58,7 @@ export const updateUserSubscription = async (req: Request, res: Response) => {
 };
 
 // Ny funktion för att hämta prenumeration baserat på sessionId
+//subscriptionid (kommer matcha med webhooks sen)
 export const getSubscriptionBySessionId = async (req: Request, res: Response) => {
   const { sessionId } = req.query;
   if (!sessionId) {

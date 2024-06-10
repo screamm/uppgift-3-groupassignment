@@ -79,6 +79,19 @@ export const loginUser = async (req: Request, res: Response): Promise<void> => {
 
   const user = await User.findOne({ email });
 
+  interface CustomSessionData extends SessionData {
+    user?: {
+      _id: string;
+      email: string;
+    };
+  }
+
+  interface CustomRequest extends Request {
+    session: Session & Partial<CustomSessionData>;
+  }
+
+  // ...
+
   if (user && (await user.matchPassword(password))) {
     req.session.user = { _id: user._id.toString(), email: user.email };
     res.json({

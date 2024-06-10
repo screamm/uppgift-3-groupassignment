@@ -4,11 +4,12 @@ import "../styles/mypages.css";
 import { useAuth } from "../context/AuthContext";
 
 export const MyPages = () => {
-  const [subscriptionLevel, setSubscriptionLevel] = useState("");
   const { sessionId } = useAuth();
+  const [subscriptionLevel, setSubscriptionLevel] = useState("");
 
   useEffect(() => {
-    const storedSessionId = sessionId || localStorage.getItem("sessionId");
+    const storedSessionId =
+      sessionId || localStorage.getItem("stripeSessionId");
     console.log("Session ID from localStorage:", storedSessionId);
     if (!storedSessionId) {
       console.error("Session ID is missing");
@@ -16,7 +17,7 @@ export const MyPages = () => {
     }
 
     axios
-      .get("http://localhost:3000/subscription/session", {
+      .get("http://localhost:3000/stripe/verify-session", {
         params: { sessionId: storedSessionId },
       })
       .then((response) => {
@@ -32,7 +33,8 @@ export const MyPages = () => {
   }, [sessionId]);
 
   const handleUpgradeDowngrade = (level: string) => {
-    const storedSessionId = sessionId || localStorage.getItem("sessionId");
+    const storedSessionId =
+      sessionId || localStorage.getItem("stripeSessionId");
     if (!storedSessionId) {
       console.error("Session ID is missing");
       return;

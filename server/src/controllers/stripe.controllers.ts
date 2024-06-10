@@ -1,8 +1,9 @@
 import { Request, Response } from 'express';
 import Stripe from 'stripe';
 import dotenv from 'dotenv';
-import Subscription, { ISubscription } from '../models/Subscription'; // Updated import
-import User from '../models/User';
+import Subscription, { ISubscription } from '../models/Subscription';
+import Level from '../models/Level';
+import User, { IUser } from '../models/User';
 import { getAllProducts } from './articles.controllers';
 import path from 'path';
 import fs from 'fs/promises';
@@ -77,7 +78,7 @@ const createCheckoutSession = async (req: Request, res: Response): Promise<void>
       cancel_url: 'https://www.visit-tochigi.com/plan-your-trip/things-to-do/2035/',
       metadata: {
         userId: userId,
-        subscriptionLevel: selectedProduct.name  // Ensure this matches the Subscription model
+        subscriptionLevel: selectedProduct.name
       },
     });
 
@@ -100,9 +101,15 @@ const createCheckoutSession = async (req: Request, res: Response): Promise<void>
       console.error("Error saving user document:", err);
     }
 
+    const level = await Level.findOne({ name: selectedProduct.name });
+    if (!level) {
+      res.status(400).json({ error: 'Level not found' });
+      return;
+    }
+
     const newSubscription: ISubscription = new Subscription({
       userId: user._id.toString(),
-      level: selectedProduct.name,  // Ensure this matches the Subscription model
+      level: selectedProduct.name,
       startDate: new Date(),
       endDate: new Date(new Date().setFullYear(new Date().getFullYear() + 1)),
       nextBillingDate: new Date(new Date().setMonth(new Date().getMonth() + 1)),
@@ -147,7 +154,7 @@ const verifySession = async (req: Request, res: Response): Promise<void> => {
       if (!subscription) {
         console.log("No existing subscription found, creating new subscription");
         const userId = session.metadata?.userId;
-        const subscriptionLevel = session.metadata?.subscriptionLevel;  // Changed to match Subscription model
+        const subscriptionLevel = session.metadata?.subscriptionLevel;
         if (!userId || !subscriptionLevel) {
           console.log("User ID or Subscription Level is missing in session metadata");
           res.status(400).send('User ID or Subscription Level is missing in session metadata');
@@ -164,7 +171,7 @@ const verifySession = async (req: Request, res: Response): Promise<void> => {
         console.log("Found user:", user);
         subscription = new Subscription({
           userId: user._id.toString(),
-          level: subscriptionLevel,  // Changed to match Subscription model
+          level: subscriptionLevel,
           startDate: new Date(),
           endDate: new Date(new Date().setFullYear(new Date().getFullYear() + 1)),
           nextBillingDate: new Date(new Date().setMonth(new Date().getMonth() + 1)),
@@ -179,7 +186,7 @@ const verifySession = async (req: Request, res: Response): Promise<void> => {
         console.log("Updated user with new subscriptionId:", user);
       }
 
-      res.status(200).json({ verified: true, stripeId: sessionId });
+      res.status(200).json({ verified: true, stripeId: sessionId, subscriptionLevel: subscription.level });
     } else {
       console.log("Session payment status is not 'paid'");
       res.status(200).json({ verified: false });

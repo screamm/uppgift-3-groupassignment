@@ -74,41 +74,28 @@ export const registerUser = async (req: CustomRequest, res: Response, next: Next
   }
 };
 
-export const loginUser = async (req: Request, res: Response): Promise<void> => {
+
+export const loginUser = async (req: CustomRequest, res: Response, next: NextFunction): Promise<void> => {
   const { email, password } = req.body;
 
   const user = await User.findOne({ email });
 
-  interface CustomSessionData extends SessionData {
-    user?: {
-      _id: string;
-      email: string;
-    };
-  }
-
-  interface CustomRequest extends Request {
-    session: Session & Partial<CustomSessionData>;
-  }
-
-  // ...
-
   if (user && (await user.matchPassword(password))) {
-    req.session.user = { _id: user._id.toString(), email: user.email };
+    req.session.userId = user._id.toString();
     res.json({
-      _id: user._id,
+      _id: user.id,
       email: user.email,
       firstName: user.firstName,
       lastName: user.lastName,
       subscriptionId: user.subscriptionId,
       role: user.role,
       stripeId: user.stripeId,
-      sessionId: req.session.id, // Lägg till sessionId här
+      sessionId: req.session.id, 
     });
   } else {
     res.status(401).json({ message: 'Invalid email or password' });
   }
 };
-
 
 
 export const logoutUser = (req: CustomRequest, res: Response): void => {

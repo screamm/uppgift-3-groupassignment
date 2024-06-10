@@ -12,6 +12,7 @@ export const Confirmation = () => {
   useEffect(() => {
     const verifyPayment = async () => {
       const sessionId = localStorage.getItem("stripeSessionId"); // Hämta sessionId från localStorage
+      const userId = localStorage.getItem("user");
       console.log("verifyPayment called");
       console.log("sessionId:", sessionId);
 
@@ -34,7 +35,9 @@ export const Confirmation = () => {
           setEmail(response.data.email);
 
           // Logga in användaren och spara sessionId
-          login(response.data.user, sessionId);
+          if (userId && sessionId) {
+            login(userId, sessionId);
+          }
         } else {
           setStatus("Köpet gick inte igenom. Försök igen.");
         }

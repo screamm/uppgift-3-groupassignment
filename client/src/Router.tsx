@@ -5,9 +5,10 @@ import { MyPages } from "./pages/MyPages";
 import { Layout } from "./pages/Layout";
 import { Admin } from "./pages/Admin";
 import { Contact } from "./pages/Contact";
-import { Login } from "./pages/login"; 
+import { Login } from "./pages/login";
 import { Register } from "./pages/Register";
 import { Checkout } from "./pages/Checkout"; // Importera Checkout-komponenten
+import { Confirmation } from "./pages/Confirmation";
 
 export const router = createBrowserRouter([
   {
@@ -42,8 +43,12 @@ export const router = createBrowserRouter([
         element: <Register />,
       },
       {
-        path: "/checkout", 
+        path: "/checkout",
         element: <Checkout />,
+      },
+      {
+        path: "/confirmation/:sessionId",
+        element: <Confirmation />,
       },
     ],
   },

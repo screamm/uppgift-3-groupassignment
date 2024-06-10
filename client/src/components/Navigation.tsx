@@ -39,4 +39,5 @@ export const Navigation = () => {
       </ul>
     </nav>
   );
+  console.log(isAuthenticated);
 };

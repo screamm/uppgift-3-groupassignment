@@ -68,14 +68,14 @@ export const Register = () => {
       setErrorMessage("");
       setSuccessMessage("Registration successful!");
 
-      // Kontrollera att response.data.url är korrekt
-      console.log("Session ID:", response.data.sessionId);
+      console.log("Session ID:", response.data.session_id);
       console.log("Redirect URL:", response.data.url);
 
-      login(response.data); // Använd login-funktionen från AuthContext
+      login(response.data, response.data.session_id);
+      localStorage.setItem("stripeSessionId", response.data.session_id);
 
       navigate("/checkout", {
-        state: { sessionId: response.data.sessionId, url: response.data.url },
+        state: { session_id: response.data.session_id, url: response.data.url },
       });
     } catch (error: any) {
       console.error(

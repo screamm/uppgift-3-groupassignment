@@ -5,23 +5,24 @@ import { useAuth } from "../context/AuthContext";
 import "./Admin"
 
 export const MyPages = () => {
+  const { stripeSessionId } = useAuth();
   const [subscriptionLevel, setSubscriptionLevel] = useState("");
-  const { stripeId } = useAuth();
 
   useEffect(() => {
-    console.log("Stripe ID from AuthContext:", stripeId);
-    if (!stripeId) {
-      console.error("Stripe ID is missing");
+    const storedSessionId = stripeSessionId || localStorage.getItem("stripeSessionId");
+    console.log("Session ID from localStorage:", storedSessionId);
+    if (!storedSessionId) {
+      console.error("Session ID is missing");
       return;
     }
 
     axios
       .get("http://localhost:3000/subscription/session", {
-        params: { sessionId: stripeId },
+        params: { sessionId: storedSessionId },
       })
       .then((response) => {
         console.log("Response from server:", response.data);
-        setSubscriptionLevel(response.data.subscriptionLevel); // Assuming the response has a 'subscriptionLevel' field
+        setSubscriptionLevel(response.data.subscriptionLevel);
       })
       .catch((error) => {
         console.error(
@@ -29,17 +30,18 @@ export const MyPages = () => {
           error
         );
       });
-  }, [stripeId]);
+  }, [stripeSessionId]);
 
   const handleUpgradeDowngrade = (level: string) => {
-    if (!stripeId) {
-      console.error("Stripe ID is missing");
+    const storedSessionId = stripeSessionId || localStorage.getItem("stripeSessionId");
+    if (!storedSessionId) {
+      console.error("Session ID is missing");
       return;
     }
 
     axios
       .post("http://localhost:3000/subscription", {
-        stripeId,
+        sessionId: storedSessionId,
         subscriptionLevel: level,
       })
       .then((response) => {

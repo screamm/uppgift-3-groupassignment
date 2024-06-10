@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, ReactNode } from "react";
+import { createContext, useContext, useState, ReactNode, useEffect } from "react";
 import { logoutUser } from "../services/api";
 import { useNavigate } from "react-router-dom";
 
@@ -15,28 +15,58 @@ interface User {
 interface IAuthContext {
   user: User | null;
   isAuthenticated: boolean;
-  login: (user: User) => void;
+  login: (user: User, stripeSessionId: string) => void;
   logout: () => void;
   stripeId: string | null;
+  stripeSessionId: string | null;
 }
 
 const AuthContext = createContext<IAuthContext | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<User | null>(() => {
+    const storedUser = localStorage.getItem("user");
+    if (storedUser) {
+      try {
+        return JSON.parse(storedUser);
+      } catch (error) {
+        console.error("Error parsing user from localStorage", error);
+        localStorage.removeItem("user"); // Ta bort ogiltigt värde från localStorage
+      }
+    }
+    return null;
+  });
+
+  const [stripeSessionId, setStripeSessionId] = useState<string | null>(() => {
+    return localStorage.getItem("stripeSessionId");
+  });
+
   const navigate = useNavigate();
 
-  const login = (user: User) => {
+  useEffect(() => {
+    if (user && stripeSessionId) {
+      localStorage.setItem("user", JSON.stringify(user));
+      localStorage.setItem("stripeSessionId", stripeSessionId);
+    }
+  }, [user, stripeSessionId]);
+
+  const login = (user: User, stripeSessionId: string) => {
     setUser(user);
-    console.log("User logged in with stripeId:", user.stripeId);
+    setStripeSessionId(stripeSessionId);
+    console.log("User logged in:", user);
+    console.log("Stripe Session ID:", stripeSessionId);
+    localStorage.setItem("user", JSON.stringify(user));
+    localStorage.setItem("stripeSessionId", stripeSessionId);
   };
 
   const logout = async () => {
     try {
       const response = await logoutUser();
-
       if (response.status === 200) {
         setUser(null);
+        setStripeSessionId(null);
+        localStorage.removeItem("user");
+        localStorage.removeItem("stripeSessionId");
         console.log("User logged out");
         navigate("/");
       } else {
@@ -55,6 +85,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         login,
         logout,
         stripeId: user?.stripeId || null,
+        stripeSessionId,
       }}>
       {children}
     </AuthContext.Provider>

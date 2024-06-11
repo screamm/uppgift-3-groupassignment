@@ -3,6 +3,9 @@ import Subscription from '../models/Subscription';
 import User from '../models/User';
 import { AnyCnameRecord } from 'dns';
 
+//endonduedate när vi gör update på vår subscription att avsluta prenumeration
+//route för getfailedpaymentlink - subId i databasen hämtar från stripe subdata - i den subdatan finns en lastinvoice(liknande) den är ett id, hämta från stripe den invoice med det id - datan kommer att ha en länk i si
+
 export const getUserSubscription = async (req: Request, res: Response) => {
   const { sessionId } = req.query;
 

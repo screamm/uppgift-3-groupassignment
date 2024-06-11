@@ -12,22 +12,24 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
 });
 
 const handleStripeWebhook = async (req: Request, res: Response) => {
-  const sig = req.headers['stripe-signature'] as string;
-  const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET as string;
+  // const sig = req.headers['stripe-signature'] as string;
+  // const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET as string;
 
-  let event: Stripe.Event;
+  // let event: Stripe.Event;
 
-  try {
-    event = stripe.webhooks.constructEvent(req.body as Buffer, sig, webhookSecret);
-  } catch (err) {
-    if (err instanceof Error) {
-      console.error('Webhook signature verification failed:', err.message);
-      return res.status(400).send(`Webhook Error: ${err.message}`);
-    } else {
-      console.error('Webhook signature verification failed:', err);
-      return res.status(400).send('Webhook Error: Unknown error');
-    }
-  }
+  // try {
+  //   event = stripe.webhooks.constructEvent(req.body as Buffer, sig, webhookSecret);
+  // } catch (err) {
+  //   if (err instanceof Error) {
+  //     console.error('Webhook signature verification failed:', err.message);
+  //     return res.status(400).send(`Webhook Error: ${err.message}`);
+  //   } else {
+  //     console.error('Webhook signature verification failed:', err);
+  //     return res.status(400).send('Webhook Error: Unknown error');
+  //   }
+  // }
+  const event = req.body;
+  //sub update - ändra status i vår db när vi ändrar sub i stripe
 
   console.log(`Received event: ${event.type}`);
 

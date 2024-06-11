@@ -34,11 +34,14 @@ articleRouter.post('/articles', async (req, res) => {
   try {
     const { title, description, level } = req.body;
     console.log('FORM DATA: ', title, description, level);
+    const createdAt = new Date();
 
     const newArticle = new Article({
+      stripeProductId: level,
       level: level,
       description: description,
       title: title,
+      createdAt: createdAt,
     })
     
     await newArticle.save();

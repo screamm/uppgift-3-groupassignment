@@ -1,12 +1,12 @@
 import "../styles/admin.css";
-import React, { useState, useEffect } from "react";
-import { IProduct } from "../models/Article";
+import { useState, useEffect } from "react";
+import { IProduct, IArticle } from "../models/Article";
 
 export const Admin = () => {
     const [articles, setArticles] = useState<IProduct[]>([]);
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [selectedArticle, setSelectedArticle] = useState<IProduct | null>(null);
-    const [contentPages, setContentPages] = useState<{ name: string; requiredLevel: number }[]>([]);
+    const [contentPages, setContentPages] = useState<IArticle[]>([]);
     const [newArticleName, setNewArticleName] = useState<string>('');
     const [newArticleText, setNewArticleText] = useState<string>('');
     const [selectedSubscription, setSelectedSubscription] = useState<string>("Alpaca Basic"); 
@@ -25,11 +25,12 @@ export const Admin = () => {
                 setIsLoading(false);
             });
 
-       /* fetch("http://localhost:3000/articles/articles")*/
-       fetch("http://localhost:3000/content/pages")
+        fetch("http://localhost:3000/articles/articles")
             .then((response) => response.json())
             .then((data) => {
-                setContentPages(data);
+                console.log('articles: ', data);
+                
+                setContentPages(data.default);
                 setIsLoading(false);
             })
             .catch((error) => {
@@ -84,7 +85,6 @@ export const Admin = () => {
     return (
         <div className="admin">
             <h2>Subscription List</h2>
-            <h2>Subscription List</h2>
             {isLoading ? (
                 <p>Loading...</p>
             ) : (
@@ -93,7 +93,6 @@ export const Admin = () => {
                         <div key={index} className="subscription">
                             {selectedArticle && selectedArticle._id === article._id ? (
                                 <div>
-                                    <h6 className="subscriptionName">Prenumerationsnamn: </h6>
                                     <input
                                         type="text"
                                         value={selectedArticle.name}
@@ -119,13 +118,13 @@ export const Admin = () => {
             )}
 
             <h2>Articles</h2>
-            <h2>Articles</h2>
+            
             <div className="adminContentPages">
                 {contentPages.map((page, index) => (
                     <div key={index} className="contentPage">
-                        <h3>{page.name}</h3>
-                        <p>Level: {subscriptions[page.requiredLevel - 1]}</p> {/* Visa prenumerationen baserat på krävd nivå */}
-                        <p>Level: {subscriptions[page.requiredLevel - 1]}</p> {/* Visa prenumerationen baserat på krävd nivå */}
+                        <h3>{page.title}</h3>
+                        <p>Level: {page.level}</p> {/* Visa prenumerationen baserat på krävd nivå */}
+                        <p>{page.description}</p>
                     </div>
                 ))}
                 <div className="addContentPageForm">

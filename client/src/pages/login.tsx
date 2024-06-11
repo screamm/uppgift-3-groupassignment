@@ -31,7 +31,7 @@ export const Login = () => {
       console.log("Login successful:", response.data);
 
       setErrorMessage("");
-      login(response.data, response.data.sessionId); // Skicka sessionId när användaren loggar in
+      login(response.data, response.data.stripeSessionId); // Skicka sessionId när användaren loggar in
       console.log("User logged in:", response.data);
 
       navigate("/mypages");

@@ -6,12 +6,11 @@ import { stripe } from './stripe.controllers';
 export const getAllProducts = async (): Promise<any[]> => {
   try {
     const products = await stripe.products.list({
-      limit: 100, // Begränsa till 100 förfrågningar åt gången
+      limit: 100, 
     });
     const productsWithPrices = [];
 
     for (const product of products.data) {
-      // Filtrera bort arkiverade produkter
       if (product.active === false) {
         console.log(`Skipping archived product: ${product.id}`);
         continue;

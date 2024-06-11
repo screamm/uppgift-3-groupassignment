@@ -209,7 +209,12 @@ const verifySession = async (req: Request, res: Response): Promise<void> => {
         console.log("Payment document already exists for session:", sessionId);
       }
 
-      res.status(200).json({ verified: true, stripeId: sessionId, subscriptionLevel: subscription.level });
+      res.status(200).json({
+        verified: true,
+        stripeId: sessionId,
+        subscriptionLevel: subscription.level,
+        subscriptionId: subscription._id 
+      });
     } else {
       console.log("Session payment status is not 'paid'");
       res.status(200).json({ verified: false });

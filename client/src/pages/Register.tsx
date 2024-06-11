@@ -13,11 +13,13 @@ export const Register = () => {
   const { login } = useAuth();
 
   const [formData, setFormData] = useState<User>({
+    _id: "",
     email: "",
     password: "",
     firstName: "",
     lastName: "",
     role: "user",
+    subscriptionId: "",
   });
 
   const [acceptTerms, setAcceptTerms] = useState<boolean>(false);

@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import { User } from "../models/User"; // Importera User-gränssnittet
 
 export const Confirmation = () => {
   const navigate = useNavigate();
@@ -23,10 +24,12 @@ export const Confirmation = () => {
       }
 
       let userId: string | null = null;
+      let subscriptionId: string | null = null;
       if (userString) {
         try {
-          const user = JSON.parse(userString);
+          const user: User = JSON.parse(userString); // Använd User typen här
           userId = user._id;
+          subscriptionId = user.subscriptionId || null;
         } catch (error) {
           console.error("Error parsing user:", error);
           setStatus("Ett fel inträffade vid hämtning av användaruppgifter.");
@@ -48,7 +51,7 @@ export const Confirmation = () => {
 
           // Logga in användaren och spara sessionId
           if (userId && sessionId) {
-            login(userId, sessionId);
+            login({ ...response.data.user, subscriptionId }, sessionId);
           }
         } else {
           setStatus("Köpet gick inte igenom. Försök igen.");

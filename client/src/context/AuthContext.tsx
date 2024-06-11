@@ -1,10 +1,4 @@
-import {
-  createContext,
-  useContext,
-  useState,
-  ReactNode,
-  useEffect,
-} from "react";
+import { createContext, useContext, useState, ReactNode, useEffect } from "react";
 import { logoutUser } from "../services/api";
 import { useNavigate } from "react-router-dom";
 
@@ -33,11 +27,21 @@ const AuthContext = createContext<IAuthContext | undefined>(undefined);
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(() => {
     const storedUser = localStorage.getItem("user");
-    return storedUser ? JSON.parse(storedUser) : null;
+    if (storedUser) {
+      try {
+        return JSON.parse(storedUser);
+      } catch (error) {
+        console.error("Error parsing user from localStorage", error);
+        localStorage.removeItem("user"); // Ta bort ogiltigt värde från localStorage
+      }
+    }
+    return null;
   });
+
   const [stripeSessionId, setStripeSessionId] = useState<string | null>(() => {
     return localStorage.getItem("stripeSessionId");
   });
+
   const navigate = useNavigate();
 
   useEffect(() => {

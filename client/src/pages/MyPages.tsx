@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import "../styles/mypages.css";
 import { useAuth } from "../context/AuthContext";
+import "./Admin";
 
 export const MyPages = () => {
   const { stripeSessionId } = useAuth();
@@ -83,6 +84,8 @@ export const MyPages = () => {
           Elite
         </button>
       </div>
+      <h1>My Articles</h1>
+      <div></div>
     </div>
   );
 };

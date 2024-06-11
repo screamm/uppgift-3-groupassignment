@@ -77,7 +77,7 @@ export const Admin = () => {
 
     return (
         <div className="admin">
-            <h2>Prenumerationslista</h2>
+            <h2>Subscription List</h2>
             {isLoading ? (
                 <p>Loading...</p>
             ) : (
@@ -103,8 +103,8 @@ export const Admin = () => {
                             ) : (
                                 <div>
                                     <h1>{article.name}</h1>
-                                    <p>prenumerationspris: {article.price} kr</p>
-                                    <button onClick={() => handleEditClick(article)} className="editArticle">Redigera prenumerationen</button>
+                                    <p>Subscription Price: {article.price} kr</p>
+                                    <button onClick={() => handleEditClick(article)} className="editArticle">Edit the subscription</button>
                                 </div>
                             )}
                         </div>
@@ -112,32 +112,32 @@ export const Admin = () => {
                 </div>
             )}
 
-            <h2>Innehållssidor</h2>
+            <h2>Articles</h2>
             <div className="adminContentPages">
                 {contentPages.map((page, index) => (
                     <div key={index} className="contentPage">
                         <h3>{page.name}</h3>
-                        <p>Krävd nivå: {subscriptions[page.requiredLevel - 1]}</p> {/* Visa prenumerationen baserat på krävd nivå */}
+                        <p>Level: {subscriptions[page.requiredLevel - 1]}</p> {/* Visa prenumerationen baserat på krävd nivå */}
                     </div>
                 ))}
                 <div className="addContentPageForm">
-                    <label>Sidans namn: </label>
+                    <label>Article Name: </label>
                     <input
                         type="text"
                         value={newPageName}
                         onChange={e => setNewPageName(e.target.value)}
                     />
-                    <label>Beskrivning: </label>
+                    <label>Text: </label>
                     <input
                         type="text"
                     />
-                    <label>Välj prenumeration: </label>
+                    <label>Choose Subscription: </label>
                     <select value={selectedSubscription} onChange={(e) => setSelectedSubscription(parseInt(e.target.value))}>
                         {subscriptions.map((subscription, index) => (
                             <option key={index} value={index + 1}>{subscription}</option>
                         ))}
                     </select>
-                    <button onClick={handleAddPageClick}>Lägg till sida</button>
+                    <button onClick={handleAddPageClick}>Add Article</button>
                 </div>
             </div>
         </div>

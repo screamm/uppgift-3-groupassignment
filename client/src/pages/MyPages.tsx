@@ -1,13 +1,17 @@
 // TESTAR
-import { useState, useEffect } from "react";
+import { useState, useEffect, SetStateAction } from "react";
 import axios from "axios";
 import "../styles/mypages.css";
 import { useAuth } from "../context/AuthContext";
 import "./Admin";
+import { IArticle } from "../models/Article";
 
 export const MyPages = () => {
   const { stripeSessionId } = useAuth();
   const [subscriptionLevel, setSubscriptionLevel] = useState("");
+  const [articles, setArticles] = useState<IArticle[]>([]);
+  const [sortedArticles, setSortedArticles] = useState<IArticle[]>([]);
+
 
   useEffect(() => {
     const storedSessionId =
@@ -31,6 +35,28 @@ export const MyPages = () => {
           "There was an error fetching the subscription level!",
           error
         );
+      });
+
+      fetch("http://localhost:3000/articles/articles")
+      .then((response) => response.json())
+      .then((data) => {
+          console.log('articles: ', data);
+          
+          setArticles(data.default);
+
+          const articlesForLevel: SetStateAction<IArticle[]> = [];
+          articles.map((article) => {
+            if (article.level === subscriptionLevel) {
+              articlesForLevel.push(article);
+              console.log('article: ', article);
+            }
+          })
+          setSortedArticles(articlesForLevel);
+          console.log('articles for this users level: ', articlesForLevel);
+          
+      })
+      .catch((error) => {
+          console.error("Error fetching content pages:", error);
       });
   }, [stripeSessionId]);
 
@@ -86,7 +112,15 @@ export const MyPages = () => {
         </button>
       </div>
       <h1>My Articles</h1>
-      <div></div>
+      <div>
+        {sortedArticles.map((article, index) => (
+        <div key={index} className="contentPage">
+          <h3>{article.title}</h3>
+          <p>Level: {article.level}</p> {/* Visa prenumerationen baserat på krävd nivå */}
+          <p>{article.description}</p>
+        </div>
+        ))}
+      </div>
     </div>
   );
 };

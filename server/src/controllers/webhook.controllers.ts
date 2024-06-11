@@ -114,7 +114,7 @@ const handleSubscriptionUpdate = async (event: Stripe.Event, res: Response) => {
       res.status(404).send('Subscription not found.');
     }
   } catch (err: any) {
-    console.error('Error updating subscription:', err.message);
+    console.error('Error updating subscription!!!!:', err.message);
     res.status(500).send(`Error updating subscription: ${err.message}`);
   }
 };

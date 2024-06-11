@@ -23,6 +23,7 @@ export const Register = () => {
   const [acceptTerms, setAcceptTerms] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string>("");
   const [successMessage, setSuccessMessage] = useState<string>("");
+  const [loading, setLoading] = useState<boolean>(false);
 
   useEffect(() => {
     console.log("Selected product in Register.tsx:", selectedProduct);
@@ -57,6 +58,8 @@ export const Register = () => {
       return;
     }
 
+    setLoading(true);
+
     try {
       console.log(
         "Submitting registration with selectedProduct:",
@@ -73,6 +76,7 @@ export const Register = () => {
 
       login(response.data, response.data.sessionId);
       localStorage.setItem("stripeSessionId", response.data.sessionId);
+      localStorage.setItem("user", JSON.stringify(response.data.user)); // Spara användarobjektet som sträng
 
       navigate("/checkout", {
         state: { sessionId: response.data.sessionId, url: response.data.url },
@@ -83,6 +87,8 @@ export const Register = () => {
         error.response?.data || error.message
       );
       setErrorMessage(error.response?.data?.message || "Registration failed");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -143,7 +149,9 @@ export const Register = () => {
             />
             <p>I accept the terms and conditions for storing personal data.</p>
           </div>
-          <button type="submit">Register & Pay</button>
+          <button type="submit" disabled={loading}>
+            {loading ? "Registering..." : "Register & Pay"}
+          </button>
         </form>
       </div>
     </div>

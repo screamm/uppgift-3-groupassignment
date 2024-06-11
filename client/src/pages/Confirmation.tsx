@@ -11,6 +11,7 @@ export const Confirmation = () => {
   const [email, setEmail] = useState<string>("");
 
   useEffect(() => {
+    console.log("useEffect verified payment");
     const verifyPayment = async () => {
       const sessionId = localStorage.getItem("stripeSessionId"); // Hämta sessionId från localStorage
       const userString = localStorage.getItem("user");
@@ -48,7 +49,7 @@ export const Confirmation = () => {
         if (response.data.verified) {
           setStatus("Betalningen gick igenom! Tack för ditt köp!");
           setEmail(response.data.email);
-
+          //härifrån kan vi få subId
           // Logga in användaren och spara sessionId
           if (userId && sessionId) {
             login({ ...response.data.user, subscriptionId }, sessionId);
@@ -63,7 +64,7 @@ export const Confirmation = () => {
     };
 
     verifyPayment();
-  }, [login]);
+  }, []);
 
   const handleRedirect = (path: string) => {
     navigate(path);

@@ -3,7 +3,6 @@ import { Navigation } from "../components/Navigation";
 import "../styles/layout.css";
 import { AuthProvider } from "../context/AuthContext";
 
-
 export const Layout = () => {
   return (
     <AuthProvider>
@@ -13,6 +12,8 @@ export const Layout = () => {
       <main className="outlet">
         <Outlet />
       </main>
-      </AuthProvider>
+    </AuthProvider>
   );
+  {
+  }
 };

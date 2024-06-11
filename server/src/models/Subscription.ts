@@ -7,6 +7,7 @@ export interface ISubscription extends Document {
   endDate: Date;
   nextBillingDate: Date;
   stripeId: string;
+  status: string;
 }
 
 const SubscriptionSchema: Schema = new Schema({
@@ -16,6 +17,7 @@ const SubscriptionSchema: Schema = new Schema({
   endDate: { type: Date, required: true },
   nextBillingDate: { type: Date, required: true },
   stripeId: { type: String, required: true },
+  status: { type: String, required: true }
 }, {
   timestamps: true
 });

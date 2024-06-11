@@ -84,6 +84,7 @@ export const Admin = () => {
     return (
         <div className="admin">
             <h2>Subscription List</h2>
+            <h2>Subscription List</h2>
             {isLoading ? (
                 <p>Loading...</p>
             ) : (
@@ -118,10 +119,12 @@ export const Admin = () => {
             )}
 
             <h2>Articles</h2>
+            <h2>Articles</h2>
             <div className="adminContentPages">
                 {contentPages.map((page, index) => (
                     <div key={index} className="contentPage">
                         <h3>{page.name}</h3>
+                        <p>Level: {subscriptions[page.requiredLevel - 1]}</p> {/* Visa prenumerationen baserat på krävd nivå */}
                         <p>Level: {subscriptions[page.requiredLevel - 1]}</p> {/* Visa prenumerationen baserat på krävd nivå */}
                     </div>
                 ))}

@@ -199,7 +199,7 @@ const verifySession = async (req: Request, res: Response): Promise<void> => {
           status: 'paid',
           stripeId: sessionId,
         });
-
+console.log("create new payment------------------------");
         await payment.save();
         console.log("Payment document created:", payment);
       } else {

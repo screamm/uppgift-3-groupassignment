@@ -13,16 +13,19 @@ export const Register = () => {
   const { login } = useAuth();
 
   const [formData, setFormData] = useState<User>({
+    _id: "",
     email: "",
     password: "",
     firstName: "",
     lastName: "",
     role: "user",
+    subscriptionId: "",
   });
 
   const [acceptTerms, setAcceptTerms] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string>("");
   const [successMessage, setSuccessMessage] = useState<string>("");
+  const [loading, setLoading] = useState<boolean>(false);
 
   useEffect(() => {
     console.log("Selected product in Register.tsx:", selectedProduct);
@@ -57,6 +60,8 @@ export const Register = () => {
       return;
     }
 
+    setLoading(true);
+
     try {
       console.log(
         "Submitting registration with selectedProduct:",
@@ -71,8 +76,9 @@ export const Register = () => {
       console.log("Session ID:", response.data.session_id);
       console.log("Redirect URL:", response.data.url);
 
-      login(response.data, response.data.session_id);
-      localStorage.setItem("stripeSessionId", response.data.session_id);
+      login(response.data, response.data.sessionId);
+      localStorage.setItem("stripeSessionId", response.data.sessionId);
+      localStorage.setItem("user", JSON.stringify(response.data.user)); // Spara användarobjektet som sträng
 
       navigate("/checkout", {
         state: { session_id: response.data.session_id, url: response.data.url },
@@ -83,6 +89,8 @@ export const Register = () => {
         error.response?.data || error.message
       );
       setErrorMessage(error.response?.data?.message || "Registration failed");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -143,7 +151,9 @@ export const Register = () => {
             />
             <p>I accept the terms and conditions for storing personal data.</p>
           </div>
-          <button type="submit">Register & Pay</button>
+          <button type="submit" disabled={loading}>
+            {loading ? "Registering..." : "Register & Pay"}
+          </button>
         </form>
       </div>
     </div>

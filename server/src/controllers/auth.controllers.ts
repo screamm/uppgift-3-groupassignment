@@ -56,7 +56,7 @@ export const registerUser = async (req: CustomRequest, res: Response, next: Next
     console.log("Stripe Checkout Session Created:", session.id);
     user.stripeId = session.id;
     await user.save();
-
+console.log(session);
     res.status(201).json({
       _id: user._id,
       email: user.email,

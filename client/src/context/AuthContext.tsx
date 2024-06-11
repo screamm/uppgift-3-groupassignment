@@ -19,6 +19,7 @@ interface IAuthContext {
   logout: () => void;
   stripeId: string | null;
   stripeSessionId: string | null;
+  subscriptionId: string | null;
 }
 
 const AuthContext = createContext<IAuthContext | undefined>(undefined);
@@ -50,14 +51,26 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   }, [user, stripeSessionId]);
 
-  const login = (user: User, stripeSessionId: string) => {
+  const login = (user: User, stripeId: string) => {
     setUser(user);
-    setStripeSessionId(stripeSessionId);
+    setStripeSessionId(stripeId);
     console.log("User logged in:", user);
     console.log("Stripe Session ID:", stripeSessionId);
     localStorage.setItem("user", JSON.stringify(user));
-    localStorage.setItem("stripeSessionId", stripeSessionId);
+    localStorage.setItem("stripeSessionId", stripeId);
   };
+
+  // const login = (user: User, stripeId: string) => {
+  //   const isAuthenticated = !!stripeId && !!user;
+  //   if (!isAuthenticated) {
+  //     setUser(user);
+  //     setStripeSessionId(stripeId);
+  //     console.log("User logged in:", user);
+  //     console.log("Stripe Session ID:", stripeSessionId);
+  //     localStorage.setItem("user", JSON.stringify(user));
+  //     localStorage.setItem("stripeSessionId", stripeId);
+  //   }
+  // };
 
   const logout = async () => {
     try {
@@ -86,6 +99,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         logout,
         stripeId: user?.stripeId || null,
         stripeSessionId,
+        subscriptionId: user?.subscriptionId || null, // Lägg till subscriptionId här
       }}>
       {children}
     </AuthContext.Provider>

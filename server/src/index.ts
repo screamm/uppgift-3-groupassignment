@@ -1,13 +1,14 @@
 import express from 'express';
 import mongoose from 'mongoose';
-import subscriptionRouter from './routes/subscription.router';
 import colors from 'colors';
 import dotenv from 'dotenv';
 import cors from 'cors';
+import session from 'express-session';
+import subscriptionRouter from './routes/subscription.router';
 import stripeRouter from './routes/stripe.router';
 import authRouter from './routes/auth.router';
-import session from 'express-session';
 import articleRouter from './routes/articles.router';
+import paymentRouter from './routes/payment.router';
 import bodyParser from 'body-parser';
 import { handleStripeWebhook } from './controllers/webhook.controllers';
 
@@ -46,8 +47,10 @@ app.use('/subscription', subscriptionRouter);
 app.use('/auth', authRouter);
 app.use('/stripe', stripeRouter);
 app.use('/articles', articleRouter);
+app.use('/payment', paymentRouter)
 
-app.post('/stripe/webhook', bodyParser.raw({ type: 'application/json' }), handleStripeWebhook);
+// Use express.raw to handle Stripe webhooks
+app.post('/stripe/webhook', express.raw({ type: 'application/json' }), handleStripeWebhook);
 
 app.listen(port, () => {
   console.log(colors.rainbow(`Server is running on http://localhost:${port}`));

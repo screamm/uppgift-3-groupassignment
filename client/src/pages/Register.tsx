@@ -79,7 +79,7 @@ export const Register = () => {
       login(response.data.user, response.data.sessionId, ""); // Add the missing third argument
 
       localStorage.setItem("stripeSessionId", response.data.sessionId);
-      localStorage.setItem("user", JSON.stringify(response.data.user)); // Spara användarobjektet som sträng
+      localStorage.setItem("user", response.data.user); // Spara användarobjektet som sträng
 
       navigate("/checkout", {
         state: { sessionId: response.data.sessionId, url: response.data.url },

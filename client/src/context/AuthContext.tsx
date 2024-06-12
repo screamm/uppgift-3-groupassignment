@@ -66,7 +66,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     console.log("Stripe Session ID:", stripeSessionId);
     console.log("Stripe Subscription ID:", stripeSubId);
     localStorage.setItem("user", JSON.stringify({ ...user, stripeSubId }));
-    localStorage.setItem("stripeSessionId", stripeSessionId);
+    localStorage.setItem("stripeSubId", stripeSubId);
   };
 
   const logout = async () => {
@@ -75,8 +75,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       if (response.status === 200) {
         setUser(null);
         setStripeSessionId(null);
-        localStorage.removeItem("user");
-        localStorage.removeItem("stripeSessionId");
+        localStorage.clear();
+
         console.log("User logged out");
         navigate("/");
       } else {

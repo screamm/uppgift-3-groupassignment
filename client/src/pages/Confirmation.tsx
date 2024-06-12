@@ -4,8 +4,6 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { User } from "../models/User"; // Importera User-gränssnittet
 
-// betalning gck ej igenom kunden kommer till mypages och här finns möjlghet att göra betalningen igen
-
 export const Confirmation = () => {
   const navigate = useNavigate();
   const { login } = useAuth();
@@ -52,10 +50,15 @@ export const Confirmation = () => {
           setStatus("Betalningen gick igenom! Tack för ditt köp!");
           setEmail(response.data.email);
 
-          //härifrån kan vi få subId endpoint för att hämta subid
-          // Logga in användaren och spara sessionId
-          if (userId && sessionId) {
-            login({ ...response.data.user, subscriptionId }, sessionId);
+          // Logga in användaren och spara sessionId och subscriptionId
+          if (userId && sessionId && response.data.subscriptionId) {
+            login(
+              {
+                ...response.data.user,
+                subscriptionId: response.data.subscriptionId,
+              },
+              sessionId
+            );
           }
         } else {
           setStatus("Köpet gick inte igenom. Försök igen.");

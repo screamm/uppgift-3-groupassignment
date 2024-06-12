@@ -177,6 +177,7 @@ const verifySession = async (req: Request, res: Response): Promise<void> => {
           endDate: new Date(new Date().setFullYear(new Date().getFullYear() + 1)),
           nextBillingDate: new Date(new Date().setMonth(new Date().getMonth() + 1)),
           stripeId: sessionId,
+          status: 'active', // Sätt status till 'active' vid skapandet
         });
 
         await subscription.save();
@@ -185,6 +186,8 @@ const verifySession = async (req: Request, res: Response): Promise<void> => {
         user.subscriptionId = subscription._id as string;
         await user.save();
         console.log("Updated user with new subscriptionId:", user);
+      } else {
+        console.log("Existing subscription found:", subscription);
       }
 
       // Kontrollera om betalningen redan existerar för att undvika duplicering
@@ -199,14 +202,19 @@ const verifySession = async (req: Request, res: Response): Promise<void> => {
           status: 'paid',
           stripeId: sessionId,
         });
-console.log("create new payment------------------------");
+        console.log("Creating new Payment document:", payment);
         await payment.save();
         console.log("Payment document created:", payment);
       } else {
         console.log("Payment document already exists for session:", sessionId);
       }
 
-      res.status(200).json({ verified: true, stripeId: sessionId, subscriptionLevel: subscription.level });
+      res.status(200).json({
+        verified: true,
+        stripeId: sessionId,
+        subscriptionLevel: subscription.level,
+        subscriptionId: subscription._id 
+      });
     } else {
       console.log("Session payment status is not 'paid'");
       res.status(200).json({ verified: false });

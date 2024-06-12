@@ -3,6 +3,7 @@ import Subscription from '../models/Subscription';
 import User from '../models/User';
 import { Stripe } from 'stripe';
 import dotenv from 'dotenv';
+import stripeClient from 'stripe';
 
 dotenv.config();
 
@@ -29,21 +30,15 @@ export const getUserSubscription = async (req: Request, res: Response) => {
 
     console.log('User found:', user);
     const subscription = await Subscription.findOne({ userId: user._id });
-
+    
     if (!subscription) {
       res.status(404).json({ error: 'Subscription not found' });
       return;
     }
-
-    const stripeSubscription = await stripe.subscriptions.retrieve(subscription.stripeId);
-
+    
     console.log('Subscription found:', subscription);
-    res.status(200).json({
-      subscriptionLevel: subscription.level,
-      subscriptionStatus: stripeSubscription.status,
-      subscriptionId: subscription._id,
-    });
-  } catch (error) {
+    res.status(200).json({ subscriptionLevel: subscription.level });
+  } catch (error: any) {
     console.error('Error fetching subscription:', error);
     res.status(500).json({ error: 'Internal Server Error' });
   }
@@ -78,28 +73,37 @@ export const updateUserSubscription = async (req: Request, res: Response) => {
   }
 };
 
-export const cancelUserSubscription = async (req: Request, res: Response) => {
-  const { sessionId } = req.body;
+export const cancelSubscription = async (req: Request, res: Response) => {
+  const { sessionId, subscriptionId } = req.body;
+
+  if (!sessionId || !subscriptionId) {
+    res.status(400).json({ error: 'Session ID and Subscription ID are required' });
+    return;
+  }
 
   try {
-    const user = await User.findOne({ stripeId: sessionId });
+    const canceledSubscription = await stripe.subscriptions.cancel(subscriptionId);
 
+    const user = await User.findOne({ stripeId: sessionId });
     if (!user) {
       res.status(404).json({ error: 'User not found' });
       return;
     }
 
-    const subscription = await Subscription.findOne({ userId: user._id });
-    
-    if (subscription) {
-      subscription.nextBillingDate = new Date(); // Assign a valid Date value here
-      subscription.status = 'canceled';
-      await subscription.save();
-      res.json({ message: 'Subscription cancelled successfully', subscription });
-    } else {
+    const subscription = await Subscription.findOneAndUpdate(
+      { userId: user._id, stripeSubId: subscriptionId },
+      { status: 'canceled', nextBillingDate: null },
+      { new: true }
+    );
+
+    if (!subscription) {
       res.status(404).json({ message: 'Subscription not found' });
+      return;
     }
+
+    res.json({ message: 'Subscription cancelled successfully', subscription });
   } catch (error: any) {
+    console.error('Error cancelling subscription:', error);
     res.status(500).json({ message: error.message });
   }
 };
@@ -120,7 +124,7 @@ export const getFailedPaymentLink = async (req: Request, res: Response) => {
       return;
     }
 
-    const stripeSubscription = await stripe.subscriptions.retrieve(subscription.stripeId);
+    const stripeSubscription = await stripe.subscriptions.retrieve(subscription.stripeSubId);
 
     if (!stripeSubscription.latest_invoice) {
       res.status(404).json({ error: 'No latest invoice found for this subscription' });
@@ -142,7 +146,6 @@ export const getFailedPaymentLink = async (req: Request, res: Response) => {
 
 export const getSubscriptionBySessionId = async (req: Request, res: Response) => {
   const { sessionId } = req.query;
-
   if (!sessionId) {
     res.status(400).json({ error: 'Session ID is required' });
     return;
@@ -165,13 +168,13 @@ export const getSubscriptionBySessionId = async (req: Request, res: Response) =>
       return;
     }
 
-    const stripeSubscription = await stripe.subscriptions.retrieve(subscription.stripeId);
-
     console.log('Subscription found:', subscription);
+    const stripeSubscription = await stripe.subscriptions.retrieve(subscription.stripeSubId);
     res.json({
       subscriptionLevel: subscription.level,
-      subscriptionStatus: stripeSubscription.status,
-      subscriptionId: subscription._id,
+      nextBillingDate: new Date(stripeSubscription.current_period_end * 1000),
+      endDate: stripeSubscription.cancel_at_period_end ? new Date(stripeSubscription.current_period_end * 1000) : null,
+      subscriptionId: stripeSubscription.id
     });
   } catch (error) {
     console.error('Error fetching subscription by session ID:', error);
@@ -202,14 +205,8 @@ export const getUserSubscriptionBySession = async (req: Request, res: Response):
       return;
     }
 
-    const stripeSubscription = await stripe.subscriptions.retrieve(subscription.stripeId);
-
     console.log('Subscription found:', subscription);
-    res.json({
-      subscriptionLevel: subscription.level,
-      subscriptionStatus: stripeSubscription.status,
-      subscriptionId: subscription._id,
-    });
+    res.json({ subscriptionLevel: subscription.level });
   } catch (error: any) {
     console.error('Error fetching subscription:', error);
     res.status(500).send('Error fetching subscription.');

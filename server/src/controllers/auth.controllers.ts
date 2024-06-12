@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import User from '../models/User';
+import Subscription from '../models/Subscription';
 import { Session, SessionData } from 'express-session';
 import { stripe } from './stripe.controllers';
 
@@ -11,7 +12,7 @@ interface CustomRequest extends Request {
 
 export const registerUser = async (req: CustomRequest, res: Response, next: NextFunction): Promise<void> => {
   const { email, password, firstName, lastName, subscriptionId, role, selectedProduct } = req.body;
-
+console.log(req.body);
   if (!selectedProduct || !selectedProduct.priceId) {
     res.status(400).json({ message: 'Selected product or priceId is missing' });
     return;
@@ -57,6 +58,7 @@ export const registerUser = async (req: CustomRequest, res: Response, next: Next
     user.stripeId = session.id;
     await user.save();
 console.log(session);
+const userSub = await Subscription.findOne({ stripeId: user.stripeId})
     res.status(201).json({
       _id: user._id,
       email: user.email,
@@ -67,6 +69,7 @@ console.log(session);
       stripeId: user.stripeId,
       sessionId: session.id,
       url: session.url,
+      stripeSubId: userSub ? userSub.stripeSubId : null
     });
   } catch (error) {
     console.error('Error during user registration:', error);
@@ -81,6 +84,9 @@ export const loginUser = async (req: CustomRequest, res: Response, next: NextFun
   const user = await User.findOne({ email });
 
   if (user && (await user.matchPassword(password))) {
+
+    const userSub = await Subscription.findOne({ stripeId: user.stripeId})
+
     req.session.userId = user._id.toString();
     res.json({
       _id: user.id,
@@ -91,6 +97,7 @@ export const loginUser = async (req: CustomRequest, res: Response, next: NextFun
       role: user.role,
       stripeId: user.stripeId,
       sessionId: req.session.id, 
+      stripeSubId: userSub ? userSub.stripeSubId : null
     });
   } else {
     res.status(401).json({ message: 'Invalid email or password' });

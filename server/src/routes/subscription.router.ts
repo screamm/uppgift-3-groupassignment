@@ -1,10 +1,12 @@
 import express from 'express';
-import { getUserSubscription, updateUserSubscription, getSubscriptionBySessionId } from '../controllers/subscription.controllers';
+import { getUserSubscription, updateUserSubscription, getSubscriptionBySessionId, cancelSubscription, getFailedPaymentLink } from '../controllers/subscription.controllers';
 
 const subscriptionRouter = express.Router();
 
 subscriptionRouter.get('/', getUserSubscription);
-subscriptionRouter.post('/', updateUserSubscription);
 subscriptionRouter.get('/session', getSubscriptionBySessionId);
+subscriptionRouter.post('/', updateUserSubscription);
+subscriptionRouter.post('/cancel', cancelSubscription);
+subscriptionRouter.get('/failed-payment-link', getFailedPaymentLink);
 
 export default subscriptionRouter;

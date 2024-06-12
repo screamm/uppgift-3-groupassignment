@@ -11,6 +11,8 @@ export const MyPages = () => {
   const [subscriptionLevel, setSubscriptionLevel] = useState("");
   const [articles, setArticles] = useState<IArticle[]>([]);
   const [sortedArticles, setSortedArticles] = useState<IArticle[]>([]);
+  const [nextBillingDate, setNextBillingDate] = useState<Date | null>(null);
+  const [endDate, setEndDate] = useState<Date | null>(null);
 
 
   useEffect(() => {
@@ -29,6 +31,8 @@ export const MyPages = () => {
       .then((response) => {
         console.log("Response from server:", response.data);
         setSubscriptionLevel(response.data.subscriptionLevel);
+        setNextBillingDate(new Date(response.data.nextBillingDate));
+        setEndDate(response.data.endDate ? new Date(response.data.endDate) : null);
       })
       .catch((error) => {
         console.error(
@@ -86,11 +90,43 @@ export const MyPages = () => {
       });
   };
 
+  const handleCancelSubscription = () => {
+    const storedSessionId =
+      stripeSessionId || localStorage.getItem("stripeSessionId");
+    if (!storedSessionId) {
+      console.error("Session ID is missing");
+      return;
+    }
+
+    if (window.confirm("Vill du verkligen avsluta prenumerationen?")) {
+      axios
+        .post("http://localhost:3000/subscription/cancel", {
+          sessionId: storedSessionId,
+        })
+        .then((response) => {
+          console.log("Subscription cancelled:", response.data);
+          alert(response.data.message);
+        })
+        .catch((error) => {
+          console.error(
+            "There was an error cancelling the subscription!",
+            error
+          );
+        });
+    }
+  };
+
   return (
     <div className="mypages-container">
       <h1 className="mypages-title">My Pages</h1>
       <p className="mypages-subscription">
         Current Subscription Level: <strong>{subscriptionLevel}</strong>
+      </p>
+      <p className="mypages-subscription">
+        Next Billing Date: <strong>{nextBillingDate ? nextBillingDate.toLocaleDateString() : "Invalid Date"}</strong>
+      </p>
+      <p className="mypages-subscription">
+        End Date: <strong>{endDate ? endDate.toLocaleDateString() : "Invalid Date"}</strong>
       </p>
 
       <div className="mypages-buttons">
@@ -109,6 +145,13 @@ export const MyPages = () => {
           onClick={() => handleUpgradeDowngrade("elite")}
           className="mypages-button">
           Elite
+        </button>
+      </div>
+      <div className="mypages-buttons">
+        <button
+          onClick={handleCancelSubscription}
+          className="mypages-button cancel-button">
+          Avsluta Abonemang
         </button>
       </div>
       <h1>My Articles</h1>

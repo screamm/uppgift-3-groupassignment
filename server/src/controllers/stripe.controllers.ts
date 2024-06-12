@@ -4,10 +4,8 @@ import dotenv from 'dotenv';
 import Subscription, { ISubscription } from '../models/Subscription';
 import Level from '../models/Level';
 import User, { IUser } from '../models/User';
-import Payment, { IPayment } from '../models/Payment'; // Importera Payment-modellen
+import Payment, { IPayment } from '../models/Payment';
 import { getAllProducts } from './articles.controllers';
-import path from 'path';
-import fs from 'fs/promises';
 
 dotenv.config();
 
@@ -143,7 +141,7 @@ const verifySession = async (req: Request, res: Response): Promise<void> => {
     }
 
     console.log("Verifying session with Stripe:", sessionId);
-    const session = await stripe.checkout.sessions.retrieve(sessionId);
+    const session = await stripe.checkout.sessions.retrieve(sessionId, { expand: ['customer', 'subscription'] });
     console.log("Stripe session retrieved:", session);
 
     if (session.payment_status === 'paid') {
@@ -169,6 +167,12 @@ const verifySession = async (req: Request, res: Response): Promise<void> => {
           return;
         }
 
+        if (!session.subscription || typeof session.subscription === 'string' || !('id' in session.subscription)) {
+          console.log("Subscription information is missing in session");
+          res.status(400).json({ error: 'Subscription information is missing in session' });
+          return;
+        }
+
         console.log("Found user:", user);
         subscription = new Subscription({
           userId: user._id.toString(),
@@ -177,7 +181,8 @@ const verifySession = async (req: Request, res: Response): Promise<void> => {
           endDate: new Date(new Date().setFullYear(new Date().getFullYear() + 1)),
           nextBillingDate: new Date(new Date().setMonth(new Date().getMonth() + 1)),
           stripeId: sessionId,
-          status: 'active', // Sätt status till 'active' vid skapandet
+          status: 'active',
+          stripeSubId: session.subscription.id,  // Spara stripeSubId här
         });
 
         await subscription.save();
@@ -190,7 +195,6 @@ const verifySession = async (req: Request, res: Response): Promise<void> => {
         console.log("Existing subscription found:", subscription);
       }
 
-      // Kontrollera om betalningen redan existerar för att undvika duplicering
       const existingPayment = await Payment.findOne({ stripeId: sessionId });
       if (!existingPayment) {
         const amount = lineItems.data.reduce((total, item) => total + item.amount_total, 0);
@@ -224,7 +228,6 @@ const verifySession = async (req: Request, res: Response): Promise<void> => {
     res.status(500).json({ message: 'Error verifying session', error: (error as Error).message });
   }
 };
-
 
 
 const updateSubscriptionFromStripeEvent = async (req: Request, res: Response): Promise<void> => {

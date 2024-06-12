@@ -76,7 +76,8 @@ export const Register = () => {
       console.log("Session ID:", response.data.sessionId);
       console.log("Redirect URL:", response.data.url);
 
-      login(response.data, response.data.sessionId);
+      login(response.data.user, response.data.sessionId, ""); // Add the missing third argument
+
       localStorage.setItem("stripeSessionId", response.data.sessionId);
       localStorage.setItem("user", JSON.stringify(response.data.user)); // Spara användarobjektet som sträng
 

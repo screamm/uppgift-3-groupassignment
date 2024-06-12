@@ -57,7 +57,8 @@ export const Confirmation = () => {
                 ...response.data.user,
                 subscriptionId: response.data.subscriptionId,
               },
-              sessionId
+              sessionId,
+              response.data.stripeSubId // Skicka stripeSubId här
             );
           }
         } else {

@@ -9,7 +9,6 @@ import stripeRouter from './routes/stripe.router';
 import authRouter from './routes/auth.router';
 import articleRouter from './routes/articles.router';
 import paymentRouter from './routes/payment.router';
-import bodyParser from 'body-parser';
 import { handleStripeWebhook } from './controllers/webhook.controllers';
 
 dotenv.config();
@@ -17,8 +16,14 @@ dotenv.config();
 const app = express();
 const port = process.env.PORT || 3000;
 
-// Middleware to parse JSON bodies
-app.use(express.json());
+// Middleware to parse JSON bodies for all routes except /stripe/webhook
+app.use((req, res, next) => {
+  if (req.originalUrl === '/stripe/webhook') {
+    next();
+  } else {
+    express.json()(req, res, next);
+  }
+});
 app.use(express.urlencoded({ extended: true }));
 
 const corsOptions = {
@@ -47,7 +52,7 @@ app.use('/subscription', subscriptionRouter);
 app.use('/auth', authRouter);
 app.use('/stripe', stripeRouter);
 app.use('/articles', articleRouter);
-app.use('/payment', paymentRouter)
+app.use('/payment', paymentRouter);
 
 // Use express.raw to handle Stripe webhooks
 app.post('/stripe/webhook', express.raw({ type: 'application/json' }), handleStripeWebhook);

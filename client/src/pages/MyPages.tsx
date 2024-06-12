@@ -32,6 +32,7 @@ export const MyPages = () => {
         console.log("Response from server:", response.data);
         setSubscriptionLevel(response.data.subscriptionLevel);
         setNextBillingDate(new Date(response.data.nextBillingDate));
+        getArticles(response.data.subscriptionLevel);
         setEndDate(response.data.endDate ? new Date(response.data.endDate) : null);
       })
       .catch((error) => {
@@ -41,28 +42,46 @@ export const MyPages = () => {
         );
       });
 
-      fetch("http://localhost:3000/articles/articles")
-      .then((response) => response.json())
-      .then((data) => {
-          console.log('articles: ', data);
-          
-          setArticles(data.default);
 
-          const articlesForLevel: SetStateAction<IArticle[]> = [];
-          articles.map((article) => {
-            if (article.level === subscriptionLevel) {
-              articlesForLevel.push(article);
-              console.log('article: ', article);
-            }
-          })
-          setSortedArticles(articlesForLevel);
-          console.log('articles for this users level: ', articlesForLevel);
-          
-      })
-      .catch((error) => {
-          console.error("Error fetching content pages:", error);
-      });
   }, [stripeSessionId]);
+  const getArticles = (level: string) => {
+  fetch("http://localhost:3000/articles/articles")
+  .then((response) => response.json())
+  .then((data) => {
+      console.log('articles: ', data);
+      
+      setArticles(data.default);
+
+      const articlesForLevel: SetStateAction<IArticle[]> = [];
+      console.log(level)
+      if (level === "Alpaca Elite") {
+        articles.map((article) => {
+          articlesForLevel.push(article);    
+        })   
+      }else if(level === "Alpaca Insight") { 
+        articles.map((article) => {
+          if (article.level === level || article.level === "Alpaca Basic") {
+            articlesForLevel.push(article);    
+          }
+        })        
+      } else if (level === "Alpaca Basic") {
+        articles.map((article) => {
+          if (article.level === level) {
+            articlesForLevel.push(article);
+          }
+        })
+      } else {
+        return;
+      }
+  
+      setSortedArticles(articlesForLevel);
+      console.log('articles for this users level: ', articlesForLevel);
+      
+  })
+  .catch((error) => {
+      console.error("Error fetching content pages:", error);
+  });
+}
 
   const handleUpgradeDowngrade = (level: string) => {
     const storedSessionId =

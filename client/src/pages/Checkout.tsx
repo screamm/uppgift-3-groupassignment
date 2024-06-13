@@ -3,18 +3,18 @@ import { useLocation } from "react-router-dom";
 
 export const Checkout = () => {
   const location = useLocation();
-  const sessionId = location.state?.sessionId;
+  // const sessionId = location.state?.sessionId;
   const url = location.state?.url;
 
   useEffect(() => {
-    if (!sessionId || !url) {
+    if (!url) {
       console.error("No session ID or URL found");
       return;
     }
 
     console.log("Redirecting to Stripe Checkout with URL:", url);
     window.location.replace(url);
-  }, [sessionId, url]);
+  }, [ url]);
 
   return (
     <div className="checkout-container">

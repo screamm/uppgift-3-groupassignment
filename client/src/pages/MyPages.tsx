@@ -1,7 +1,7 @@
 // TESTAR
 import { useState, useEffect, SetStateAction } from "react";
 import axios from "axios";
-import "../styles/mypages.css";
+import "../styles/mypages.css";  
 import { useAuth } from "../context/AuthContext";
 import "./Admin";
 import { IArticle } from "../models/Article";
@@ -9,7 +9,6 @@ import { IArticle } from "../models/Article";
 export const MyPages = () => {
   const { stripeSessionId } = useAuth();
   const [subscriptionLevel, setSubscriptionLevel] = useState("");
-  const [articles, setArticles] = useState<IArticle[]>([]);
   const [sortedArticles, setSortedArticles] = useState<IArticle[]>([]);
   const [nextBillingDate, setNextBillingDate] = useState<Date | null>(null);
   const [endDate, setEndDate] = useState<Date | null>(null);
@@ -23,7 +22,7 @@ export const MyPages = () => {
       console.error("Session ID is missing");
       return;
     }
-
+ 
     axios
       .get("http://localhost:3000/subscription/session", {
         params: { sessionId: storedSessionId },
@@ -49,8 +48,8 @@ export const MyPages = () => {
   .then((response) => response.json())
   .then((data) => {
       console.log('articles: ', data);
-      
-      setArticles(data.default);
+
+      let articles:IArticle[] = (data.default);
 
       const articlesForLevel: SetStateAction<IArticle[]> = [];
       console.log(level)
@@ -63,7 +62,7 @@ export const MyPages = () => {
           if (article.level === level || article.level === "Alpaca Basic") {
             articlesForLevel.push(article);    
           }
-        })        
+        })          
       } else if (level === "Alpaca Basic") {
         articles.map((article) => {
           if (article.level === level) {
@@ -72,10 +71,11 @@ export const MyPages = () => {
         })
       } else {
         return;
-      }
-  
+      }   
+    
       setSortedArticles(articlesForLevel);
       console.log('articles for this users level: ', articlesForLevel);
+      console.log(level);
       
   })
   .catch((error) => {
@@ -186,5 +186,5 @@ export const MyPages = () => {
     </div>
   );
 };
-
+ 
 export default MyPages;

@@ -50,6 +50,8 @@ export const Confirmation = () => {
           setStatus("Betalningen gick igenom! Tack för ditt köp!");
           setEmail(response.data.email);
 
+          localStorage.setItem("stripeSubId", response.data.stripeSubId);
+          localStorage.setItem("user", JSON.stringify({ ...response.data.user, subscriptionId: response.data.subscriptionId }));
           // Logga in användaren och spara sessionId och subscriptionId
           if (userId && sessionId && response.data.subscriptionId) {
             login(
@@ -60,6 +62,7 @@ export const Confirmation = () => {
               sessionId,
               response.data.stripeSubId // Skicka stripeSubId här
             );
+
           }
         } else {
           setStatus("Köpet gick inte igenom. Försök igen.");

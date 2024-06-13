@@ -158,72 +158,77 @@ export const getFailedPaymentLink = async (req: Request, res: Response) => {
   }
 };
 
-export const getSubscriptionBySessionId = async (req: Request, res: Response) => {
-  const { stripeId } = req.query;
-
-  if (!stripeId) {
-    res.status(400).json({ error: 'Session ID is required' });
-    return;
-  }
-
-  try {
-    console.log('Fetching user with stripeSubId:', stripeId);
-    const user = await User.findOne({ stripeSubId: stripeId });
-
-    if (!user) {
-      res.status(404).json({ error: 'User not found' });
-      return;
-    }
-
-    console.log('User found:', user);
-    const subscription = await Subscription.findOne({ userId: user._id });
-
-    if (!subscription) {
-      res.status(404).json({ error: 'Subscription not found' });
-      return;
-    }
-
-    console.log('Subscription found:', subscription);
-    const stripeSubscription = await stripe.subscriptions.retrieve(subscription.stripeSubId);
-    res.json({
-      subscriptionLevel: subscription.level,
-      nextBillingDate: new Date(stripeSubscription.current_period_end * 1000),
-      endDate: stripeSubscription.cancel_at_period_end ? new Date(stripeSubscription.current_period_end * 1000) : null,
-      subscriptionId: stripeSubscription.id
-    });
-  } catch (error: any) {
-    console.error('Error fetching subscription by session ID:', error);
-    res.status(500).json({ error: 'Internal Server Error' });
-  }
-};
-
-// export const getUserSubscriptionBySession = async (req: Request, res: Response): Promise<void> => {
-//   const sessionId = req.query.sessionId as string;
-
-//   if (!sessionId) {
-//     res.status(400).send('Session ID is required');
+// export const getSubscriptionBySessionId = async (req: Request, res: Response) => {
+//   const { stripeSubId } = req.query;
+// console.log('stripeId:-------------------------------------------', stripeSubId);
+//   if (!stripeSubId) {
+//     res.status(400).json({ error: 'Session ID is required HOHO' });
 //     return;
 //   }
 
 //   try {
-//     console.log('Fetching user with sessionId:', sessionId);
-//     const user = await User.findOne({ stripeId: sessionId });
+//     console.log('Fetching user with stripeSubId:', stripeSubId);
+//     const user = await User.findOne({ stripeSubId: stripeSubId });
+
 //     if (!user) {
-//       res.status(404).send('User not found');
+//       res.status(404).json({ error: 'User not found' });
 //       return;
 //     }
 
 //     console.log('User found:', user);
 //     const subscription = await Subscription.findOne({ userId: user._id });
+
 //     if (!subscription) {
-//       res.status(404).send('Subscription not found');
+//       res.status(404).json({ error: 'Subscription not found' });
 //       return;
 //     }
 
 //     console.log('Subscription found:', subscription);
-//     res.json({ subscriptionLevel: subscription.level });
+//     const stripeSubscription = await stripe.subscriptions.retrieve(subscription.stripeSubId);
+//     res.json({
+//       subscriptionLevel: subscription.level,
+//       nextBillingDate: new Date(stripeSubscription.current_period_end * 1000),
+//       endDate: stripeSubscription.cancel_at_period_end ? new Date(stripeSubscription.current_period_end * 1000) : null,
+//       subscriptionId: stripeSubscription.id
+//     });
 //   } catch (error: any) {
-//     console.error('Error fetching subscription:', error);
-//     res.status(500).send('Error fetching subscription.');
+//     console.error('Error fetching subscription by session ID:', error);
+//     res.status(500).json({ error: 'Internal Server Error' });
 //   }
 // };
+
+export const getSubscriptionBySessionId = async (req: Request, res: Response): Promise<void> => {
+  const sessionId = req.query.sessionId as string;
+
+  if (!sessionId) {
+    res.status(400).send('Session ID is required');
+    return;
+  }
+
+  try {
+    console.log('Fetching user with sessionId:', sessionId);
+    const user = await User.findOne({ stripeId: sessionId });
+    if (!user) {
+      res.status(404).send('User not found');
+      return;
+    }
+
+    console.log('User found:', user);
+    const subscription = await Subscription.findOne({ userId: user._id });
+    if (!subscription) {
+      res.status(404).send('Subscription not found');
+      return;
+    }
+    
+    console.log('Subscription found:', subscription);
+    res.json({
+      subscriptionLevel: subscription.level,
+      nextBillingDate: subscription.nextBillingDate,
+      endDate: subscription.endDate
+    });
+  } catch (error: any) {
+    console.error('Error fetching subscription:', error);
+    res.status(500).send('Error fetching subscription.');
+  }
+};
+

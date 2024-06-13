@@ -48,7 +48,7 @@ export const Login = () => {
       // localStorage.setItem("sessionId", response.data.sessionId);
 
       navigate("/mypages");
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Login failed:", error.response?.data || error.message);
       setErrorMessage(error.response?.data?.message || "Login failed");
     }

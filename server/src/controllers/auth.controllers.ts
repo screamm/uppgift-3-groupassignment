@@ -12,7 +12,7 @@ interface CustomRequest extends Request {
 
 export const registerUser = async (req: CustomRequest, res: Response, next: NextFunction): Promise<void> => {
   const { email, password, firstName, lastName, subscriptionId, role, selectedProduct } = req.body;
-console.log(req.body);
+
   if (!selectedProduct || !selectedProduct.priceId) {
     res.status(400).json({ message: 'Selected product or priceId is missing' });
     return;
@@ -57,8 +57,9 @@ console.log(req.body);
     console.log("Stripe Checkout Session Created:", session.id);
     user.stripeId = session.id;
     await user.save();
-console.log(session);
-const userSub = await Subscription.findOne({ stripeId: user.stripeId})
+    
+    const userSub = await Subscription.findOne({ stripeId: user.stripeId });
+
     res.status(201).json({
       _id: user._id,
       email: user.email,
@@ -77,33 +78,46 @@ const userSub = await Subscription.findOne({ stripeId: user.stripeId})
   }
 };
 
-
 export const loginUser = async (req: CustomRequest, res: Response, next: NextFunction): Promise<void> => {
   const { email, password } = req.body;
 
-  const user = await User.findOne({ email });
+  try {
+    const user = await User.findOne({ email });
 
-  if (user && (await user.matchPassword(password))) {
+    if (user && (await user.matchPassword(password))) {
+      console.log('User found:', user);
 
-    const userSub = await Subscription.findOne({ stripeId: user.stripeId})
+      const subscription = await Subscription.findOne({ userId: user._id });
+      if (!subscription) {
+        res.status(404).json({ error: 'Subscription not found' });
+        return;
+      }
 
-    req.session.userId = user._id.toString();
-    res.json({
-      _id: user.id,
-      email: user.email,
-      firstName: user.firstName,
-      lastName: user.lastName,
-      subscriptionId: user.subscriptionId,
-      role: user.role,
-      stripeId: user.stripeId,
-      sessionId: req.session.id, 
-      stripeSubId: userSub ? userSub.stripeSubId : null
-    });
-  } else {
-    res.status(401).json({ message: 'Invalid email or password' });
+      console.log('Subscription found:', subscription);
+
+      req.session.userId = user._id.toString();
+      res.json({
+        _id: user.id,
+        email: user.email,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        subscriptionId: user.subscriptionId,
+        role: user.role,
+        stripeId: user.stripeId,
+        sessionId: req.session.id,
+        stripeSubId: subscription.stripeSubId,
+        subscriptionLevel: subscription.level,
+        nextBillingDate: subscription.nextBillingDate,
+        endDate: subscription.endDate
+      });
+    } else {
+      res.status(401).json({ message: 'Invalid email or password' });
+    }
+  } catch (error: any) {
+    console.error('Error during user login:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
   }
 };
-
 
 export const logoutUser = (req: CustomRequest, res: Response): void => {
   req.session.destroy((err) => {
@@ -113,4 +127,39 @@ export const logoutUser = (req: CustomRequest, res: Response): void => {
       res.status(200).json({ message: 'User logged out' });
     }
   });
+};
+
+export const getSubscriptionBySessionId = async (req: Request, res: Response): Promise<void> => {
+  const sessionId = req.query.sessionId as string;
+
+  if (!sessionId) {
+    res.status(400).send('Session ID is required');
+    return;
+  }
+
+  try {
+    console.log('Fetching user with sessionId:', sessionId);
+    const user = await User.findOne({ stripeId: sessionId });
+    if (!user) {
+      res.status(404).send('User not found');
+      return;
+    }
+
+    console.log('User found:', user);
+    const subscription = await Subscription.findOne({ userId: user._id });
+    if (!subscription) {
+      res.status(404).send('Subscription not found');
+      return;
+    }
+    
+    console.log('Subscription found:', subscription);
+    res.json({
+      subscriptionLevel: subscription.level,
+      nextBillingDate: subscription.nextBillingDate,
+      endDate: subscription.endDate
+    });
+  } catch (error: any) {
+    console.error('Error fetching subscription:', error);
+    res.status(500).send('Error fetching subscription.');
+  }
 };

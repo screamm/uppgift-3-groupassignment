@@ -12,10 +12,10 @@ export const MyPages = () => {
   
 
   useEffect(() => {
-    const storedSessionId = localStorage.getItem("stripeId");
+    const storedSessionId = localStorage.getItem("stripeSessionId");
     console.log("Session ID from localStorage:", storedSessionId);
     if (!storedSessionId) {
-      console.error("Session ID is missing");
+      console.error("ALPACAS CRAZY is missing");
       return;
     }
     

@@ -182,7 +182,7 @@ const verifySession = async (req: Request, res: Response): Promise<void> => {
           nextBillingDate: new Date(new Date().setMonth(new Date().getMonth() + 1)),
           stripeId: sessionId,
           status: 'active',
-          stripeSubId: session.subscription.id,  // Spara stripeSubId här
+          stripeSubId: session.subscription.id,  
         });
 
         await subscription.save();

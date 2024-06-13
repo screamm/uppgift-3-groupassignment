@@ -9,15 +9,16 @@ export const MyPages = () => {
   const [nextBillingDate, setNextBillingDate] = useState<Date | null>(null);
   const [endDate, setEndDate] = useState<Date | null>(null);
   const [failedPaymentUrl, setFailedPaymentUrl] = useState<string | null>(null);
+  
 
   useEffect(() => {
-    const storedSessionId = stripeSessionId || localStorage.getItem("stripeSessionId");
+    const storedSessionId = localStorage.getItem("stripeId");
     console.log("Session ID from localStorage:", storedSessionId);
     if (!storedSessionId) {
       console.error("Session ID is missing");
       return;
     }
-
+    
     axios
       .get("http://localhost:3000/subscription/session", {
         params: { sessionId: storedSessionId },
@@ -31,8 +32,8 @@ export const MyPages = () => {
       .catch((error) => {
         console.error("There was an error fetching the subscription level!", error);
       });
-
-    if (user) {
+//lägg in status inactive &&
+    if (user ) {
       axios
         .post("http://localhost:3000/stripe/failed-payment-link", { userId: user._id })
         .then((response) => {
@@ -78,6 +79,7 @@ export const MyPages = () => {
       axios
         .post("http://localhost:3000/subscription/cancel", {
           sessionId: storedSessionId,
+          subscriptionId: user?.stripeSubId 
         })
         .then((response) => {
           console.log("Subscription cancelled:", response.data);

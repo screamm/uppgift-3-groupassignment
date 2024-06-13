@@ -212,8 +212,11 @@ const verifySession = async (req: Request, res: Response): Promise<void> => {
       } else {
         console.log("Payment document already exists for session:", sessionId);
       }
+// skicka med user från databasen och skicka med stripe subid
 
       res.status(200).json({
+        user: await User,
+        stripeSubId: subscription.stripeSubId,
         verified: true,
         stripeId: sessionId,
         subscriptionLevel: subscription.level,

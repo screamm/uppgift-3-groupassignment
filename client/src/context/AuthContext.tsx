@@ -65,7 +65,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     console.log("User logged in:", user);
     console.log("Stripe Session ID:", stripeSessionId);
     console.log("Stripe Subscription ID:", stripeSubId);
-    localStorage.setItem("user", JSON.stringify({ ...user, stripeSubId }));
+    // localStorage.setItem("user", JSON.stringify({ ...user, stripeSubId }));
     localStorage.setItem("stripeSubId", stripeSubId);
   };
 

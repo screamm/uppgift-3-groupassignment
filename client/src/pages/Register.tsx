@@ -75,11 +75,17 @@ export const Register = () => {
 
       console.log("Session ID:", response.data.sessionId);
       console.log("Redirect URL:", response.data.url);
+      console.log("User object:", response.data.user);
+      console.log("Subscription ID:", response.data.subscriptionId);
+      console.log("Subscription level:", response.data.subscriptionLevel);
 
       login(response.data.user, response.data.sessionId, ""); // Add the missing third argument
 
-      localStorage.setItem("stripeSessionId", response.data.sessionId);
-      localStorage.setItem("user", response.data.user); // Spara användarobjektet som sträng
+      // localStorage.setItem("sessionId", response.data.sessionId);
+      // localStorage.setItem("user", response.data.user); // Spara användarobjektet som sträng
+      // localStorage.setItem("stripeSessionId", response.data.sessionId);
+      // localStorage.setItem("subscriptionId", response.data.subscriptionId);
+
 
       navigate("/checkout", {
         state: { sessionId: response.data.sessionId, url: response.data.url },

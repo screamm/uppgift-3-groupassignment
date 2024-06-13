@@ -264,12 +264,6 @@ const updateSubscriptionFromStripeEvent = async (req: Request, res: Response): P
 };
 
 
-const getFailedPaymentLink = async (req: Request, res: Response): Promise<void> => {
-let userId = req.body.userId
-
-
-
-
 //hämta subscription stripe sub_id från databasen
 // stripe.subscriptions.retrieve stripe sub_id
 //får tillbaka subscription objekt
@@ -277,8 +271,33 @@ let userId = req.body.userId
 // invoice = stripe.invoices.retrieve(latest_invoice)
 // får tillbaka invoice objekt
 // invoice.hosted_invoice_url     skicka tillbaka till användaren för klick
-}
+// }
+
+const getFailedPaymentLink = async (req: Request, res: Response): Promise<void> => {
+  const userId = req.body.userId;
+
+  try {
+    const subscription = await Subscription.findOne({ userId });
+
+    if (!subscription || !subscription.stripeSubId) {
+      res.status(404).json({ error: "Subscription not found" });
+      return;
+    }
+    const stripeSubscription = await stripe.subscriptions.retrieve(subscription.stripeSubId);
+    const latestInvoiceId = stripeSubscription.latest_invoice as string;
+    const invoice = await stripe.invoices.retrieve(latestInvoiceId);
+    const hostedInvoiceUrl = invoice.hosted_invoice_url;
+    if (hostedInvoiceUrl) {
+      res.status(200).json({ url: hostedInvoiceUrl });
+    } else {
+      res.status(404).json({ error: "Hosted invoice URL not found" });
+    }
+  } catch (error) {
+    console.error("Error retrieving failed payment link:", error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+};
 
 
 
-export { createCheckoutSession, getSubscriptions, verifySession, createSubscription, updateSubscriptionFromStripeEvent };
+export { createCheckoutSession, getSubscriptions, verifySession, createSubscription, updateSubscriptionFromStripeEvent, getFailedPaymentLink  };

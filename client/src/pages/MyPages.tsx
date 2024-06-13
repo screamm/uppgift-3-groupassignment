@@ -4,14 +4,14 @@ import "../styles/mypages.css";
 import { useAuth } from "../context/AuthContext";
 
 export const MyPages = () => {
-  const { stripeSessionId } = useAuth();
+  const { stripeSessionId, user } = useAuth();
   const [subscriptionLevel, setSubscriptionLevel] = useState("");
   const [nextBillingDate, setNextBillingDate] = useState<Date | null>(null);
   const [endDate, setEndDate] = useState<Date | null>(null);
+  const [failedPaymentUrl, setFailedPaymentUrl] = useState<string | null>(null);
 
   useEffect(() => {
-    const storedSessionId =
-      stripeSessionId || localStorage.getItem("stripeSessionId");
+    const storedSessionId = stripeSessionId || localStorage.getItem("stripeSessionId");
     console.log("Session ID from localStorage:", storedSessionId);
     if (!storedSessionId) {
       console.error("Session ID is missing");
@@ -29,16 +29,24 @@ export const MyPages = () => {
         setEndDate(response.data.endDate ? new Date(response.data.endDate) : null);
       })
       .catch((error) => {
-        console.error(
-          "There was an error fetching the subscription level!",
-          error
-        );
+        console.error("There was an error fetching the subscription level!", error);
       });
-  }, [stripeSessionId]);
+
+    if (user) {
+      axios
+        .post("http://localhost:3000/stripe/failed-payment-link", { userId: user._id })
+        .then((response) => {
+          console.log("Failed payment link response:", response.data);
+          setFailedPaymentUrl(response.data.url);
+        })
+        .catch((error) => {
+          console.error("There was an error fetching the failed payment link!", error);
+        });
+    }
+  }, [stripeSessionId, user]);
 
   const handleUpgradeDowngrade = (level: string) => {
-    const storedSessionId =
-      stripeSessionId || localStorage.getItem("stripeSessionId");
+    const storedSessionId = stripeSessionId || localStorage.getItem("stripeSessionId");
     if (!storedSessionId) {
       console.error("Session ID is missing");
       return;
@@ -55,16 +63,12 @@ export const MyPages = () => {
         alert(response.data.message);
       })
       .catch((error) => {
-        console.error(
-          "There was an error updating the subscription level!",
-          error
-        );
+        console.error("There was an error updating the subscription level!", error);
       });
   };
 
   const handleCancelSubscription = () => {
-    const storedSessionId =
-      stripeSessionId || localStorage.getItem("stripeSessionId");
+    const storedSessionId = stripeSessionId || localStorage.getItem("stripeSessionId");
     if (!storedSessionId) {
       console.error("Session ID is missing");
       return;
@@ -80,10 +84,7 @@ export const MyPages = () => {
           alert(response.data.message);
         })
         .catch((error) => {
-          console.error(
-            "There was an error cancelling the subscription!",
-            error
-          );
+          console.error("There was an error cancelling the subscription!", error);
         });
     }
   };
@@ -100,29 +101,26 @@ export const MyPages = () => {
       <p className="mypages-subscription">
         End Date: <strong>{endDate ? endDate.toLocaleDateString() : "Invalid Date"}</strong>
       </p>
+      {failedPaymentUrl && (
+        <p className="mypages-subscription">
+          Failed Payment: <a href={failedPaymentUrl}>Pay Now</a>
+        </p>
+      )}
 
       <div className="mypages-buttons">
         <p className="mypages-change-text">Change Subscription Level:</p>
-        <button
-          onClick={() => handleUpgradeDowngrade("basic")}
-          className="mypages-button">
+        <button onClick={() => handleUpgradeDowngrade("basic")} className="mypages-button">
           Basic
         </button>
-        <button
-          onClick={() => handleUpgradeDowngrade("insights")}
-          className="mypages-button">
+        <button onClick={() => handleUpgradeDowngrade("insights")} className="mypages-button">
           Insight
         </button>
-        <button
-          onClick={() => handleUpgradeDowngrade("elite")}
-          className="mypages-button">
+        <button onClick={() => handleUpgradeDowngrade("elite")} className="mypages-button">
           Elite
         </button>
       </div>
       <div className="mypages-buttons">
-        <button
-          onClick={handleCancelSubscription}
-          className="mypages-button cancel-button">
+        <button onClick={handleCancelSubscription} className="mypages-button cancel-button">
           Avsluta Abonemang
         </button>
       </div>

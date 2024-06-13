@@ -8,7 +8,6 @@ import subscriptionRouter from './routes/subscription.router';
 import stripeRouter from './routes/stripe.router';
 import authRouter from './routes/auth.router';
 import articleRouter from './routes/articles.router';
-import paymentRouter from './routes/payment.router';
 import { handleStripeWebhook } from './controllers/webhook.controllers';
 
 dotenv.config();
@@ -52,7 +51,6 @@ app.use('/subscription', subscriptionRouter);
 app.use('/auth', authRouter);
 app.use('/stripe', stripeRouter);
 app.use('/articles', articleRouter);
-app.use('/payment', paymentRouter);
 
 // Use express.raw to handle Stripe webhooks
 app.post('/stripe/webhook', express.raw({ type: 'application/json' }), handleStripeWebhook);

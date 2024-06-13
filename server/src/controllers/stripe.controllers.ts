@@ -263,4 +263,22 @@ const updateSubscriptionFromStripeEvent = async (req: Request, res: Response): P
   }
 };
 
+
+const getFailedPaymentLink = async (req: Request, res: Response): Promise<void> => {
+let userId = req.body.userId
+
+
+
+
+//hämta subscription stripe sub_id från databasen
+// stripe.subscriptions.retrieve stripe sub_id
+//får tillbaka subscription objekt
+// latest invoice id = subscription.latest_invoice
+// invoice = stripe.invoices.retrieve(latest_invoice)
+// får tillbaka invoice objekt
+// invoice.hosted_invoice_url     skicka tillbaka till användaren för klick
+}
+
+
+
 export { createCheckoutSession, getSubscriptions, verifySession, createSubscription, updateSubscriptionFromStripeEvent };

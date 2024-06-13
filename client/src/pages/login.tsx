@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom";
 import { loginUser } from "../services/api";
 import { useAuth } from "../context/AuthContext";
 import "../styles/Auth.css";
-import alpaca from "../img/alp.png";
 
 export const Login = () => {
   const navigate = useNavigate();
@@ -58,7 +57,6 @@ export const Login = () => {
   
   return (
     <div className="container">
-      <img className="alpaca-img" src={alpaca} alt="alpaca" />
       <div className="login-container">
         <h1>Login</h1>
         {errorMessage && <p style={{ color: "red" }}>{errorMessage}</p>}

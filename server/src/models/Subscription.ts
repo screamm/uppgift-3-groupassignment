@@ -15,8 +15,8 @@ const SubscriptionSchema: Schema = new Schema({
   userId: { type: String, required: true },
   level: { type: String, required: true },
   startDate: { type: Date, required: true },
-  endDate: { type: Date, required: true },
-  nextBillingDate: { type: Date, required: true },
+  endDate: { type: Date , required: true },
+  nextBillingDate: { type: Date || null, required: true },
   stripeId: { type: String, required: true },
   status: { type: String, required: true },
   stripeSubId: { type: String, required: true}

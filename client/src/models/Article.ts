@@ -6,3 +6,12 @@ export interface IProduct {
   price: number;
   priceId: string; // Lägg till priceId här
 }
+
+export interface IArticle extends Document {
+  id: Key | null | undefined;
+  level: string;
+  stripeProductId: string;
+  description: string;
+  title: string;
+  createdAt: Date;
+}

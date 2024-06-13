@@ -1,15 +1,16 @@
 // TEST
 import "../styles/admin.css";
-import React, { useState, useEffect } from "react";
-import { IProduct } from "../models/Article";
+import { useState, useEffect } from "react";
+import { IProduct, IArticle } from "../models/Article";
 
 export const Admin = () => {
     const [articles, setArticles] = useState<IProduct[]>([]);
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [selectedArticle, setSelectedArticle] = useState<IProduct | null>(null);
-    const [contentPages, setContentPages] = useState<{ name: string; requiredLevel: number }[]>([]);
-    const [newPageName, setNewPageName] = useState<string>('');
-    const [selectedSubscription, setSelectedSubscription] = useState<number>(1); 
+    const [contentPages, setContentPages] = useState<IArticle[]>([]);
+    const [newArticleName, setNewArticleName] = useState<string>('');
+    const [newArticleText, setNewArticleText] = useState<string>('');
+    const [selectedSubscription, setSelectedSubscription] = useState<string>("Alpaca Basic"); 
     const subscriptions = ["Alpaca Basic", "Alpaca Insight", "Alpaca Elite"]; // Vilka nivåer man kan välja mellan till innehållsidorna.
 
     useEffect(() => {
@@ -25,10 +26,12 @@ export const Admin = () => {
                 setIsLoading(false);
             });
 
-        fetch("http://localhost:3000/content/pages")
+        fetch("http://localhost:3000/articles/articles")
             .then((response) => response.json())
             .then((data) => {
-                setContentPages(data);
+                console.log('articles: ', data);
+                
+                setContentPages(data.default);
                 setIsLoading(false);
             })
             .catch((error) => {
@@ -48,11 +51,14 @@ export const Admin = () => {
     const handleAddPageClick = async () => {
         try {
             const newPageData = {
-                name: newPageName,
-                requiredLevel: selectedSubscription // Använd vald prenumeration nivå
+                title: newArticleName,
+                description: newArticleText,
+                level: selectedSubscription // Använd vald prenumeration nivå
             };
 
-            const response = await fetch(`http://localhost:3000/content/pages`, {
+            console.log('new page data: ', newPageData);            
+
+            const response = await fetch(`http://localhost:3000/articles/articles`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -68,7 +74,8 @@ export const Admin = () => {
             const updatedPagesData = await updatedPagesResponse.json();
             setContentPages(updatedPagesData);
 
-            setNewPageName('');
+            setNewArticleName('');
+            setNewArticleText('');
 
             console.log("Sidans innehåll har lagts till!");
         } catch (error) {
@@ -87,7 +94,6 @@ export const Admin = () => {
                         <div key={index} className="subscription">
                             {selectedArticle && selectedArticle._id === article._id ? (
                                 <div>
-                                    <h6 className="subscriptionName">Prenumerationsnamn: </h6>
                                     <input
                                         type="text"
                                         value={selectedArticle.name}
@@ -105,7 +111,6 @@ export const Admin = () => {
                                 <div>
                                     <h1>{article.name}</h1>
                                     <p>Subscription Price: {article.price} kr</p>
-                                    <button onClick={() => handleEditClick(article)} className="editArticle">Edit the subscription</button>
                                 </div>
                             )}
                         </div>
@@ -114,31 +119,33 @@ export const Admin = () => {
             )}
 
             <h2>Articles</h2>
+            
             <div className="adminContentPages">
                 {contentPages.map((page, index) => (
                     <div key={index} className="contentPage">
-                        <h3>{page.name}</h3>
-                        <p>Level: {subscriptions[page.requiredLevel - 1]}</p> {/* Visa prenumerationen baserat på krävd nivå */}
+                        <h3>{page.title}</h3>
+                        <p>Level: {page.level}</p> {/* Visa prenumerationen baserat på krävd nivå */}
+                        <p>{page.description}</p>
                     </div>
                 ))}
                 <div className="addContentPageForm">
-                    <label>Article Name: </label>
-                    <input
-                        type="text"
-                        value={newPageName}
-                        onChange={e => setNewPageName(e.target.value)}
-                    />
-                    <label>Text: </label>
-                    <input
-                        type="text"
-                    />
-                    <label>Choose Subscription: </label>
-                    <select value={selectedSubscription} onChange={(e) => setSelectedSubscription(parseInt(e.target.value))}>
-                        {subscriptions.map((subscription, index) => (
-                            <option key={index} value={index + 1}>{subscription}</option>
-                        ))}
-                    </select>
-                    <button onClick={handleAddPageClick}>Add Article</button>
+                    <form onSubmit={handleAddPageClick}>
+                        <label>Article Name: </label>
+                        <input
+                            type="text"
+                            value={newArticleName}
+                            onChange={e => setNewArticleName(e.target.value)}
+                        />
+                        <label>Text: </label>
+                        <textarea value={newArticleText} onChange={e => setNewArticleText(e.target.value)} cols={20} rows={5}/>
+                        <label>Choose Subscription: </label>
+                        <select value={selectedSubscription} onChange={(e) => setSelectedSubscription((e.target.value))}>
+                            {subscriptions.map((subscription, index) => (
+                                <option key={index} value={subscription}>{subscription}</option>
+                            ))}
+                        </select>
+                        <button type="submit">Add Article</button>                        
+                    </form>
                 </div>
             </div>
         </div>

@@ -73,7 +73,7 @@ export const Register = () => {
       setErrorMessage("");
       setSuccessMessage("Registration successful!");
 
-      console.log("Session ID:", response.data.sessionId);
+      console.log("Session ID:", response.data.session_id);
       console.log("Redirect URL:", response.data.url);
       console.log("User object:", response.data.user);
       console.log("Subscription ID:", response.data.subscriptionId);
@@ -88,7 +88,7 @@ export const Register = () => {
 
 
       navigate("/checkout", {
-        state: { sessionId: response.data.sessionId, url: response.data.url },
+        state: { session_id: response.data.session_id, url: response.data.url },
       });
     } catch (error: any) {
       console.error(

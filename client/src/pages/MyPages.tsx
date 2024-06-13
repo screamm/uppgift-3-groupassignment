@@ -1,16 +1,21 @@
-import { useState, useEffect } from "react";
+// TESTAR
+import { useState, useEffect, SetStateAction } from "react";
 import axios from "axios";
-import "../styles/mypages.css";
+import "../styles/mypages.css";  
 import { useAuth } from "../context/AuthContext";
+import "./Admin";
+import { IArticle } from "../models/Article";
 
 export const MyPages = () => {
   const { stripeSessionId, user } = useAuth();
   const [subscriptionLevel, setSubscriptionLevel] = useState("");
+  const [sortedArticles, setSortedArticles] = useState<IArticle[]>([]);
   const [nextBillingDate, setNextBillingDate] = useState<Date | null>(null);
   const [endDate, setEndDate] = useState<Date | null>(null);
   const [failedPaymentUrl, setFailedPaymentUrl] = useState<string | null>(null);
   const [status, setStatus] = useState<string>("");
   
+
 
   useEffect(() => {
     const storedSessionId = localStorage.getItem("stripeSessionId");
@@ -28,6 +33,7 @@ export const MyPages = () => {
         console.log("Response from server:", response.data);
         setSubscriptionLevel(response.data.subscriptionLevel);
         setNextBillingDate(new Date(response.data.nextBillingDate));
+        getArticles(response.data.subscriptionLevel);
         setEndDate(response.data.endDate ? new Date(response.data.endDate) : null);
         setStatus(response.data.status);
 
@@ -47,7 +53,49 @@ export const MyPages = () => {
           console.error("There was an error fetching the failed payment link!", error);
         });
     }
-  }, [stripeSessionId, status, user]);
+
+    const getArticles = (level: string) => {
+  fetch("http://localhost:3000/articles/articles")
+  .then((response) => response.json())
+  .then((data) => {
+      console.log('articles: ', data);
+
+      let articles:IArticle[] = (data.default);
+
+      const articlesForLevel: SetStateAction<IArticle[]> = [];
+      console.log(level)
+      if (level === "Alpaca Elite") {
+        articles.map((article) => {
+          articlesForLevel.push(article);    
+        })   
+      }else if(level === "Alpaca Insight") { 
+        articles.map((article) => {
+          if (article.level === level || article.level === "Alpaca Basic") {
+            articlesForLevel.push(article);    
+          }
+        })          
+      } else if (level === "Alpaca Basic") {
+        articles.map((article) => {
+          if (article.level === level) {
+            articlesForLevel.push(article);
+          }
+        })
+      } else {
+        return;
+      }   
+    
+      setSortedArticles(articlesForLevel);
+      console.log('articles for this users level: ', articlesForLevel);
+      console.log(level);
+      
+  })
+  .catch((error) => {
+      console.error("Error fetching content pages:", error);
+  });
+}
+}, [stripeSessionId, status, user]);
+
+
 
   const handleUpgradeDowngrade = (level: string) => {
     const storedSessionId = stripeSessionId || localStorage.getItem("stripeSessionId");
@@ -130,9 +178,17 @@ export const MyPages = () => {
         </button>
       </div>
       <h1>My Articles</h1>
-      <div></div>
+      <div>
+        {sortedArticles.map((article, index) => (
+        <div key={index} className="contentPage">
+          <h3>{article.title}</h3>
+          <p>Level: {article.level}</p> {/* Visa prenumerationen baserat på krävd nivå */}
+          <p>{article.description}</p>
+        </div>
+        ))}
+      </div>
     </div>
   );
 };
-
+ 
 export default MyPages;

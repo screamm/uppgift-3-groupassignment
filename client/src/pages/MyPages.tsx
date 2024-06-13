@@ -1,9 +1,7 @@
-// TESTAR
 import { useState, useEffect, SetStateAction } from "react";
 import axios from "axios";
 import "../styles/mypages.css";
 import { useAuth } from "../context/AuthContext";
-import "./Admin";
 import { IArticle } from "../models/Article";
 
 export const MyPages = () => {
@@ -15,11 +13,19 @@ export const MyPages = () => {
   const [failedPaymentUrl, setFailedPaymentUrl] = useState<string | null>(null);
   const [status, setStatus] = useState<string>("");
 
+  const isSubscriptionActive = () => {
+    return nextBillingDate && new Date() < nextBillingDate;
+  };
+
+  const hasSubscriptionExpired = () => {
+    return endDate && new Date() > endDate;
+  };
+
   useEffect(() => {
     const storedSessionId = localStorage.getItem("stripeSessionId");
     console.log("Session ID from localStorage:", storedSessionId);
     if (!storedSessionId) {
-      console.error("ALPACAS CRAZY is missing");
+      console.error("Session ID is missing");
       return;
     }
 
@@ -30,12 +36,13 @@ export const MyPages = () => {
       .then((response) => {
         console.log("Response from server:", response.data);
         setSubscriptionLevel(response.data.subscriptionLevel);
-        setNextBillingDate(new Date(response.data.nextBillingDate));
-        getArticles(response.data.subscriptionLevel);
-        setEndDate(
-          response.data.endDate ? new Date(response.data.endDate) : null
-        );
+        setNextBillingDate(response.data.nextBillingDate ? new Date(response.data.nextBillingDate) : null);
+        setEndDate(response.data.endDate ? new Date(response.data.endDate) : null);
         setStatus(response.data.status);
+
+        if (response.data.status !== 'canceled' && isSubscriptionActive()) {
+          getArticles(response.data.subscriptionLevel);
+        }
       })
       .catch((error) => {
         console.error(
@@ -43,6 +50,7 @@ export const MyPages = () => {
           error
         );
       });
+
     if (status === "inactive" && user) {
       axios
         .post("http://localhost:3000/stripe/failed-payment-link", {
@@ -143,6 +151,10 @@ export const MyPages = () => {
         .then((response) => {
           console.log("Subscription cancelled:", response.data);
           alert(response.data.message);
+          setStatus('canceled');
+          const nextBillingDate = new Date(response.data.subscription.nextBillingDate);
+          setNextBillingDate(nextBillingDate);
+          setEndDate(nextBillingDate); 
         })
         .catch((error) => {
           console.error(
@@ -156,57 +168,69 @@ export const MyPages = () => {
   return (
     <div className="mypages-container">
       <h1 className="mypages-title">My Pages</h1>
-      <p className="mypages-subscription">
-        Current Subscription Level: <strong>{subscriptionLevel}</strong>
-      </p>
-      <p className="mypages-subscription">
-        Next Billing Date:{" "}
-        <strong>
-          {nextBillingDate
-            ? nextBillingDate.toLocaleDateString()
-            : "Invalid Date"}
-        </strong>
-      </p>
-      <p className="mypages-subscription">
-        End Date:{" "}
-        <strong>
-          {endDate ? endDate.toLocaleDateString() : "Invalid Date"}
-        </strong>
-      </p>
-      {failedPaymentUrl && (
+      {hasSubscriptionExpired() ? (
         <p className="mypages-subscription">
-          Failed Payment: <a href={failedPaymentUrl}>Pay Now</a>
+          No subscription
         </p>
-      )}
+      ) : (
+        <>
+          <p className="mypages-subscription">
+            Current Subscription Level: <strong>{subscriptionLevel}</strong>
+          </p>
+          {nextBillingDate && (
+            <p className="mypages-subscription">
+              Next Billing Date:{" "}
+              <strong>
+                {nextBillingDate.toLocaleDateString()}
+              </strong>
+            </p>
+          )}
+          {endDate && (
+            <p className="mypages-subscription">
+              End Date:{" "}
+              <strong>
+                {endDate.toLocaleDateString()}
+              </strong>
+            </p>
+          )}
+          {failedPaymentUrl && (
+            <p className="mypages-subscription">
+              Failed Payment: <a href={failedPaymentUrl}>Pay Now</a>
+            </p>
+          )}
 
-      <div className="mypages-buttons">
-        <p className="mypages-change-text">Change Subscription Level:</p>
-        <button
-          onClick={() => handleUpgradeDowngrade("basic")}
-          className="mypages-button">
-          Basic
-        </button>
-        <button
-          onClick={() => handleUpgradeDowngrade("insights")}
-          className="mypages-button">
-          Insight
-        </button>
-        <button
-          onClick={() => handleUpgradeDowngrade("elite")}
-          className="mypages-button">
-          Elite
-        </button>
-      </div>
-      <div className="mypages-buttons">
-        <button
-          onClick={handleCancelSubscription}
-          className="mypages-button cancel-button">
-          Avsluta Abonemang
-        </button>
-      </div>
+          <div className="mypages-buttons">
+            <p className="mypages-change-text">Change Subscription Level:</p>
+            <button
+              onClick={() => handleUpgradeDowngrade("basic")}
+              className="mypages-button">
+              Basic
+            </button>
+            <button
+              onClick={() => handleUpgradeDowngrade("insights")}
+              className="mypages-button">
+              Insight
+            </button>
+            <button
+              onClick={() => handleUpgradeDowngrade("elite")}
+              className="mypages-button">
+              Elite
+            </button>
+          </div>
+          {!hasSubscriptionExpired() && (
+            <div className="mypages-buttons">
+              <button
+                onClick={handleCancelSubscription}
+                className="mypages-button cancel-button">
+                Avsluta Abonemang
+              </button>
+            </div>
+          )}
+        </>
+      )}
       <h1>My Articles</h1>
       <div>
-        {sortedArticles.map((article, index) => (
+        {isSubscriptionActive() && sortedArticles.map((article, index) => (
           <div key={index} className="contentPage">
             <h3>{article.title}</h3>
             <p>Level: {article.level}</p>
@@ -219,3 +243,5 @@ export const MyPages = () => {
 };
 
 export default MyPages;
+
+

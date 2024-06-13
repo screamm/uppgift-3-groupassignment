@@ -97,27 +97,27 @@ export const MyPages = () => {
 
 
 
-  const handleUpgradeDowngrade = (level: string) => {
-    const storedSessionId = stripeSessionId || localStorage.getItem("stripeSessionId");
-    if (!storedSessionId) {
-      console.error("Session ID is missing");
-      return;
-    }
+  // const handleUpgradeDowngrade = (level: string) => {
+  //   const storedSessionId = stripeSessionId || localStorage.getItem("stripeSessionId");
+  //   if (!storedSessionId) {
+  //     console.error("Session ID is missing");
+  //     return;
+  //   }
 
-    axios
-      .post("http://localhost:3000/subscription", {
-        sessionId: storedSessionId,
-        subscriptionLevel: level,
-      })
-      .then((response) => {
-        console.log("Updated subscription level to:", level);
-        setSubscriptionLevel(level);
-        alert(response.data.message);
-      })
-      .catch((error) => {
-        console.error("There was an error updating the subscription level!", error);
-      });
-  };
+  //   axios
+  //     .post("http://localhost:3000/subscription", {
+  //       sessionId: storedSessionId,
+  //       subscriptionLevel: level,
+  //     })
+  //     .then((response) => {
+  //       console.log("Updated subscription level to:", level);
+  //       setSubscriptionLevel(level);
+  //       alert(response.data.message);
+  //     })
+  //     .catch((error) => {
+  //       console.error("There was an error updating the subscription level!", error);
+  //     });
+  // };
 
   const handleCancelSubscription = () => {
     const storedSessionId = stripeSessionId || localStorage.getItem("stripeSessionId");
@@ -142,6 +142,17 @@ export const MyPages = () => {
     }
   };
 
+  
+
+const customerPortal = async () => {
+  
+  const portalResponse =  await axios 
+  .post("http://localhost:3000/stripe/customer-portal", {stripeSubId: user?.stripeSubId});
+
+  console.log(portalResponse.data.url);
+  window.location.href = portalResponse.data.url;
+}
+
   return (
     <div className="mypages-container">
       <h1 className="mypages-title">My Pages</h1>
@@ -160,7 +171,7 @@ export const MyPages = () => {
         </p>
       )}
 
-      <div className="mypages-buttons">
+      {/* <div className="mypages-buttons">
         <p className="mypages-change-text">Change Subscription Level:</p>
         <button onClick={() => handleUpgradeDowngrade("basic")} className="mypages-button">
           Basic
@@ -171,7 +182,12 @@ export const MyPages = () => {
         <button onClick={() => handleUpgradeDowngrade("elite")} className="mypages-button">
           Elite
         </button>
-      </div>
+      </div> */}
+
+      <div className="mypages-buttons">
+  <button className="mypages-button cancel-button" type="submit" onClick={customerPortal}>Ändra Abonnemang</button>
+  </div>
+
       <div className="mypages-buttons">
         <button onClick={handleCancelSubscription} className="mypages-button cancel-button">
           Avsluta Abonemang

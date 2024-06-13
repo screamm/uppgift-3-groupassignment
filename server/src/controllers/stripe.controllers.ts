@@ -318,5 +318,22 @@ const getFailedPaymentLink = async (req: Request, res: Response): Promise<void> 
 };
 
 
+const upGradeSubscription = async (req: Request, res: Response): Promise<void> => {
+console.log('req.body:', req.body);
+  const subscription = await stripe.subscriptions.retrieve(req.body.stripeSubId);
+  console.log('subscription:', subscription);
 
-export { createCheckoutSession, getSubscriptions, verifySession, createSubscription, updateSubscriptionFromStripeEvent, getFailedPaymentLink  };
+
+const session = await stripe.billingPortal.sessions.create({
+  customer: subscription.customer as string,
+  return_url: 'http://localhost:5173/mypages',
+});
+console.log('session:', session);
+
+res.json({ url: session.url });
+
+}
+
+
+
+export { createCheckoutSession, getSubscriptions, verifySession, createSubscription, updateSubscriptionFromStripeEvent, getFailedPaymentLink, upGradeSubscription };

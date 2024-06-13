@@ -68,7 +68,7 @@ export const MyPages = () => {
         articles.map((article) => {
           articlesForLevel.push(article);    
         })   
-      }else if(level === "Alpaca Insight") { 
+      }else if(level === "Alpaca Insights") { 
         articles.map((article) => {
           if (article.level === level || article.level === "Alpaca Basic") {
             articlesForLevel.push(article);    

@@ -1,11 +1,9 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { loginUser } from "../services/api";
 import { useAuth } from "../context/AuthContext";
 import "../styles/Auth.css";
 
 export const Login = () => {
-  const navigate = useNavigate();
   const { login } = useAuth();
 
   const [formData, setFormData] = useState({
@@ -30,11 +28,7 @@ export const Login = () => {
       console.log("Login successful:", response.data);
 
       setErrorMessage("");
-      login(
-        response.data,
-        response.data.stripeId,
-        response.data.stripeSubId
-      ); // Skicka sessionId och stripeSubId när användaren loggar in
+      login(response.data, response.data.stripeId, response.data.stripeSubId); // Skicka sessionId och stripeSubId när användaren loggar in
       console.log("User logged in:", response.data);
       // localStorage.setItem("stripeSessionId", response.data.stripeSessionId);
       // localStorage.setItem("stripeSubId", response.data.stripeSubId);
@@ -46,14 +40,13 @@ export const Login = () => {
       // localStorage.setItem("stripeId", response.data.stripeId);
       // localStorage.setItem("sessionId", response.data.sessionId);
 
-      document.location.href=("/mypages");
+      document.location.href = "/mypages";
     } catch (error: any) {
       console.error("Login failed:", error.response?.data || error.message);
       setErrorMessage(error.response?.data?.message || "Login failed");
     }
   };
 
-  
   return (
     <div className="container">
       <div className="login-container">

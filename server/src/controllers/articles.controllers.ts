@@ -78,7 +78,7 @@ const sortArticlesByLevel = (articles: IArticle[]) => {
 const determineLevel = (article: IArticle) => {
   const level = article.level.toLowerCase();
 
-  if (level === 'basic' || level === 'insight' || level === 'elite') {
+  if (level === 'basic' || level === 'insights' || level === 'elite') {
     return level;
   } else {
     return 'default';

@@ -36,12 +36,39 @@ const handleStripeWebhook = async (req: Request, res: Response) => {
       await handleCheckoutSessionCompleted(event, res);
       break;
 
+      case 'customer.subscription.updated':
+        await handleSubscriptionUpdated(event, res);
+        break;
+
     default:
       console.warn(`Unhandled event type ${event.type}`);
       res.json({ received: true });
       break;
   }
 };
+
+const handleSubscriptionUpdated = async (event: Stripe.Event, res: Response) => {
+
+  const subscription = event.data.object as Stripe.Subscription;
+  console.log('###############################################################################');
+  console.log('Subscription updated:', subscription);
+
+  const userSubscription = await Subscription.findOne({ stripeSubId: subscription.id });
+
+console.log('*********************************userSubscription:', subscription.items.data);
+
+  if (userSubscription) {
+  
+    userSubscription.level = subscription.items.data[0].plan.nickname as string;
+    await userSubscription.save();
+  }
+
+
+
+}
+
+
+
 
 const handleCheckoutSessionCompleted = async (event: Stripe.Event, res: Response) => {
   const session = event.data.object as Stripe.Checkout.Session;

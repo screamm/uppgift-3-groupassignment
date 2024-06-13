@@ -2,7 +2,6 @@ import { useState, useEffect, SetStateAction } from "react";
 import axios from "axios";
 import "../styles/mypages.css";
 import { useAuth } from "../context/AuthContext";
-import "./Admin";
 import { IArticle } from "../models/Article";
 
 export const MyPages = () => {
@@ -14,11 +13,19 @@ export const MyPages = () => {
   const [failedPaymentUrl, setFailedPaymentUrl] = useState<string | null>(null);
   const [status, setStatus] = useState<string>("");
 
+  const isSubscriptionActive = () => {
+    return nextBillingDate && new Date() < nextBillingDate;
+  };
+
+  const hasSubscriptionExpired = () => {
+    return endDate && new Date() > endDate;
+  };
+
   useEffect(() => {
     const storedSessionId = localStorage.getItem("stripeSessionId");
     console.log("Session ID from localStorage:", storedSessionId);
     if (!storedSessionId) {
-      console.error("ALPACAS CRAZY is missing");
+      console.error("Session ID is missing");
       return;
     }
 
@@ -29,12 +36,13 @@ export const MyPages = () => {
       .then((response) => {
         console.log("Response from server:", response.data);
         setSubscriptionLevel(response.data.subscriptionLevel);
-        setNextBillingDate(new Date(response.data.nextBillingDate));
-        getArticles(response.data.subscriptionLevel);
-        setEndDate(
-          response.data.endDate ? new Date(response.data.endDate) : null
-        );
+        setNextBillingDate(response.data.nextBillingDate ? new Date(response.data.nextBillingDate) : null);
+        setEndDate(response.data.endDate ? new Date(response.data.endDate) : null);
         setStatus(response.data.status);
+
+        if (response.data.status !== 'canceled' && isSubscriptionActive()) {
+          getArticles(response.data.subscriptionLevel);
+        }
       })
       .catch((error) => {
         console.error(
@@ -42,6 +50,7 @@ export const MyPages = () => {
           error
         );
       });
+
     if (status === "inactive" && user) {
       axios
         .post("http://localhost:3000/stripe/failed-payment-link", {
@@ -138,6 +147,10 @@ export const MyPages = () => {
         .then((response) => {
           console.log("Subscription cancelled:", response.data);
           alert(response.data.message);
+          setStatus('canceled');
+          const nextBillingDate = new Date(response.data.subscription.nextBillingDate);
+          setNextBillingDate(nextBillingDate);
+          setEndDate(nextBillingDate); 
         })
         .catch((error) => {
           console.error(
@@ -181,35 +194,12 @@ const customerPortal = async () => {
       </p>
       {failedPaymentUrl ? (
         <p className="mypages-subscription">
-          Failed Payment: <a href={failedPaymentUrl}>Pay Now</a>
+          No subscription
         </p>
       ) : (
         <>
-          {/* <div className="mypages-buttons">
-            <p className="mypages-change-text">Change Subscription Level:</p>
-            <button
-              onClick={() => handleUpgradeDowngrade("basic")}
-              className="mypages-button">
-              Basic
-            </button>
-            <button
-              onClick={() => handleUpgradeDowngrade("insights")}
-              className="mypages-button">
-              Insight
-            </button>
-            <button
-              onClick={() => handleUpgradeDowngrade("elite")}
-              className="mypages-button">
-              Elite
-            </button>
-          </div> */}
-          <div className="mypages-buttons">
-            <button
-              onClick={handleCancelSubscription}
-              className="mypages-button cancel-button">
-              Avsluta Abonemang
-            </button>
-          </div>
+
+
           <h1>My Articles</h1>
           <div>
             {sortedArticles.map((article, index) => (
@@ -223,18 +213,7 @@ const customerPortal = async () => {
         </>
       )}
 
-      {/* <div className="mypages-buttons">
-        <p className="mypages-change-text">Change Subscription Level:</p>
-        <button onClick={() => handleUpgradeDowngrade("basic")} className="mypages-button">
-          Basic
-        </button>
-        <button onClick={() => handleUpgradeDowngrade("insights")} className="mypages-button">
-          Insight
-        </button>
-        <button onClick={() => handleUpgradeDowngrade("elite")} className="mypages-button">
-          Elite
-        </button>
-      </div> */}
+
 
       <div className="mypages-buttons">
   <button className="mypages-button cancel-button" type="submit" onClick={customerPortal}>Ändra Abonnemang</button>
@@ -242,8 +221,31 @@ const customerPortal = async () => {
 
       
       
+                  
+          {failedPaymentUrl && (
+            <p className="mypages-subscription">
+              Failed Payment: <a href={failedPaymentUrl}>Pay Now</a>
+            </p>
+          )}
+
+
+          {!hasSubscriptionExpired() && (
+            <div className="mypages-buttons">
+              <button
+                onClick={handleCancelSubscription}
+                className="mypages-button cancel-button">
+                Avsluta Abonemang
+              </button>
+            </div>
+          )}
+        
+     
+     
+      
     </div>
   );
-}
+};
+
+
 
 export default MyPages;

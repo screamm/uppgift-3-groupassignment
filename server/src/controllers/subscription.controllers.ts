@@ -36,7 +36,12 @@ export const getUserSubscription = async (req: Request, res: Response) => {
     }
     
     console.log('Subscription found:', subscription);
-    res.status(200).json({ subscriptionLevel: subscription.level });
+    res.status(200).json({
+      subscriptionLevel: subscription.level,
+      nextBillingDate: subscription.nextBillingDate,
+      endDate: subscription.endDate,
+      status: subscription.status
+    });
   } catch (error: any) {
     console.error('Error fetching subscription:', error);
     res.status(500).json({ error: 'Internal Server Error' });
@@ -66,15 +71,13 @@ export const updateUserSubscription = async (req: Request, res: Response) => {
       return;
     }
 
-    // Update the subscription level on Stripe
     const updatedSubscription = await stripe.subscriptions.update(subscription.stripeSubId, {
       items: [{
         id: subscription.stripeSubId,
-        price: subscriptionLevel, // Ensure to provide the correct price ID here
+        price: subscriptionLevel, 
       }]
     });
 
-    // Update the subscription level in the local database
     subscription.level = subscriptionLevel;
     await subscription.save();
 
@@ -93,11 +96,14 @@ export const cancelSubscription = async (req: Request, res: Response) => {
     return;
   }
 
+  console.log('Received data to cancel subscription:', { sessionId, subscriptionId });
+
   try {
-    // Cancel the subscription on Stripe
+    const oneWeekFromNow = new Date();
+    oneWeekFromNow.setDate(oneWeekFromNow.getDate() + 7);
+
     const canceledSubscription = await stripe.subscriptions.cancel(subscriptionId);
 
-    // Find and update the subscription status in the local database
     const user = await User.findOne({ stripeId: sessionId });
     if (!user) {
       res.status(404).json({ error: 'User not found' });
@@ -106,7 +112,7 @@ export const cancelSubscription = async (req: Request, res: Response) => {
 
     const subscription = await Subscription.findOneAndUpdate(
       { userId: user._id, stripeSubId: subscriptionId },
-      { status: 'canceled', nextBillingDate: null },
+      { status: 'canceled', nextBillingDate: oneWeekFromNow, endDate: oneWeekFromNow },
       { new: true }
     );
 
@@ -121,6 +127,7 @@ export const cancelSubscription = async (req: Request, res: Response) => {
     res.status(500).json({ message: error.message });
   }
 };
+
 
 export const getFailedPaymentLink = async (req: Request, res: Response) => {
   const { subscriptionId } = req.query;
@@ -157,45 +164,6 @@ export const getFailedPaymentLink = async (req: Request, res: Response) => {
     res.status(500).json({ message: error.message });
   }
 };
-
-// export const getSubscriptionBySessionId = async (req: Request, res: Response) => {
-//   const { stripeSubId } = req.query;
-// console.log('stripeId:-------------------------------------------', stripeSubId);
-//   if (!stripeSubId) {
-//     res.status(400).json({ error: 'Session ID is required HOHO' });
-//     return;
-//   }
-
-//   try {
-//     console.log('Fetching user with stripeSubId:', stripeSubId);
-//     const user = await User.findOne({ stripeSubId: stripeSubId });
-
-//     if (!user) {
-//       res.status(404).json({ error: 'User not found' });
-//       return;
-//     }
-
-//     console.log('User found:', user);
-//     const subscription = await Subscription.findOne({ userId: user._id });
-
-//     if (!subscription) {
-//       res.status(404).json({ error: 'Subscription not found' });
-//       return;
-//     }
-
-//     console.log('Subscription found:', subscription);
-//     const stripeSubscription = await stripe.subscriptions.retrieve(subscription.stripeSubId);
-//     res.json({
-//       subscriptionLevel: subscription.level,
-//       nextBillingDate: new Date(stripeSubscription.current_period_end * 1000),
-//       endDate: stripeSubscription.cancel_at_period_end ? new Date(stripeSubscription.current_period_end * 1000) : null,
-//       subscriptionId: stripeSubscription.id
-//     });
-//   } catch (error: any) {
-//     console.error('Error fetching subscription by session ID:', error);
-//     res.status(500).json({ error: 'Internal Server Error' });
-//   }
-// };
 
 export const getSubscriptionBySessionId = async (req: Request, res: Response): Promise<void> => {
   const sessionId = req.query.sessionId as string;

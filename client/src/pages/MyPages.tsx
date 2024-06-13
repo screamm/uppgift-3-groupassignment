@@ -240,23 +240,10 @@ const customerPortal = async () => {
   <button className="mypages-button cancel-button" type="submit" onClick={customerPortal}>Ändra Abonnemang</button>
   </div>
 
-      <div className="mypages-buttons">
-        <button onClick={handleCancelSubscription} className="mypages-button cancel-button">
-          Avsluta Abonemang
-        </button>
-      </div>
-      <h1>My Articles</h1>
-      <div>
-        {sortedArticles.map((article, index) => (
-        <div key={index} className="contentPage">
-          <h3>{article.title}</h3>
-          <p>Level: {article.level}</p> {/* Visa prenumerationen baserat på krävd nivå */}
-          <p>{article.description}</p>
-        </div>
-        ))}
-      </div>
+      
+      
     </div>
   );
-};
+}
 
 export default MyPages;

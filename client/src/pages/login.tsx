@@ -46,7 +46,7 @@ export const Login = () => {
       // localStorage.setItem("stripeId", response.data.stripeId);
       // localStorage.setItem("sessionId", response.data.sessionId);
 
-      navigate("/mypages");
+      document.location.href=("/mypages");
     } catch (error: any) {
       console.error("Login failed:", error.response?.data || error.message);
       setErrorMessage(error.response?.data?.message || "Login failed");

@@ -148,24 +148,29 @@ const verifySession = async (req: Request, res: Response): Promise<void> => {
       console.log("Session payment status is 'paid'");
       const lineItems = await stripe.checkout.sessions.listLineItems(sessionId);
       console.log("Line items from session:", lineItems.data);
-
-      let subscription = await Subscription.findOne({ stripeId: sessionId });
-      if (!subscription) {
-        console.log("No existing subscription found, creating new subscription");
-        const userId = session.metadata?.userId;
-        const subscriptionLevel = session.metadata?.subscriptionLevel;
-        if (!userId || !subscriptionLevel) {
-          console.log("User ID or Subscription Level is missing in session metadata");
-          res.status(400).send('User ID or Subscription Level is missing in session metadata');
-          return;
-        }
-
-        const user: IUser | null = await User.findById(userId);
+      
+      const userId = session.metadata?.userId;
+      const subscriptionLevel = session.metadata?.subscriptionLevel;
+      if (!userId || !subscriptionLevel) {
+        console.log("User ID or Subscription Level is missing in session metadata");
+        res.status(400).send('User ID or Subscription Level is missing in session metadata');
+        return;
+      }
+      let user: IUser | null = await User.findById(userId);
         if (!user) {
           console.log("User not found for session userId:", userId);
           res.status(400).json({ error: 'User not found' });
           return;
         }
+      let subscription = await Subscription.findOne({ stripeId: sessionId });
+
+    
+
+      if (!subscription) {
+        console.log("No existing subscription found, creating new subscription");
+        
+
+        
 
         if (!session.subscription || typeof session.subscription === 'string' || !('id' in session.subscription)) {
           console.log("Subscription information is missing in session");
@@ -215,7 +220,18 @@ const verifySession = async (req: Request, res: Response): Promise<void> => {
 // skicka med user från databasen och skicka med stripe subid
 
       res.status(200).json({
-        user: await User,
+        user: {
+          _id: user.id,
+          email: user.email,
+        password: user.password,   
+        stripeId: user.stripeId,
+        stripeSubId: subscription.stripeSubId,
+        subscriptionId: user.subscriptionId,
+          subscriptionLevel: subscription.level,
+          nextBillingDate: subscription.nextBillingDate,
+          endDate: subscription.endDate,
+          status: subscription.status
+        },
         stripeSubId: subscription.stripeSubId,
         verified: true,
         stripeId: sessionId,

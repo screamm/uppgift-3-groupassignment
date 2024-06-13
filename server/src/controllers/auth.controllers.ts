@@ -78,46 +78,105 @@ export const registerUser = async (req: CustomRequest, res: Response, next: Next
   }
 };
 
-export const loginUser = async (req: CustomRequest, res: Response, next: NextFunction): Promise<void> => {
-  const { email, password } = req.body;
+// export const loginUser = async (req: CustomRequest, res: Response, next: NextFunction): Promise<void> => {
+//   const { email, password } = req.body;
+
+//   try {
+//     const user = await User.findOne({ email });
+
+//     if (user && (await user.matchPassword(password))) {
+//       console.log('User found:', user);
+
+//       const subscription = await Subscription.findOne({ userId: user._id });
+//       if (!subscription) {
+//         res.status(404).json({ error: 'Subscription not found' });
+//         return;
+//       }
+
+//       console.log('Subscription found:', subscription);
+
+//       req.session.userId = user._id.toString();
+//       res.json({
+//         _id: user.id,
+//         email: user.email,
+//         firstName: user.firstName,
+//         lastName: user.lastName,
+//         subscriptionId: user.subscriptionId,
+//         role: user.role,
+//         stripeId: user.stripeId,
+//         sessionId: req.session.id,
+//         stripeSubId: subscription.stripeSubId,
+//         subscriptionLevel: subscription.level,
+//         nextBillingDate: subscription.nextBillingDate,
+//         endDate: subscription.endDate
+//       });
+//     } else {
+//       res.status(401).json({ message: 'Invalid email or password' });
+//     }
+//   } catch (error: any) {
+//     console.error('Error during user login:', error);
+//     res.status(500).json({ error: 'Internal Server Error' });
+//   }
+// };
+
+export const loginUser = async (req: Request, res: Response): Promise<void> => {
+  // const sessionId = req.query.sessionId as string;
+  const { email, password } = req.body as { email: string; password: string }
+
+  if (!email) {
+    res.status(400).send('Session ID is required');
+    return;
+  }
 
   try {
-    const user = await User.findOne({ email });
-
-    if (user && (await user.matchPassword(password))) {
-      console.log('User found:', user);
-
-      const subscription = await Subscription.findOne({ userId: user._id });
-      if (!subscription) {
-        res.status(404).json({ error: 'Subscription not found' });
-        return;
-      }
-
-      console.log('Subscription found:', subscription);
-
-      req.session.userId = user._id.toString();
-      res.json({
-        _id: user.id,
-        email: user.email,
-        firstName: user.firstName,
-        lastName: user.lastName,
-        subscriptionId: user.subscriptionId,
-        role: user.role,
-        stripeId: user.stripeId,
-        sessionId: req.session.id,
-        stripeSubId: subscription.stripeSubId,
-        subscriptionLevel: subscription.level,
-        nextBillingDate: subscription.nextBillingDate,
-        endDate: subscription.endDate
-      });
-    } else {
-      res.status(401).json({ message: 'Invalid email or password' });
+    console.log('Fetching user with sessionId:');
+    const user = await User.findOne({ email: email });
+    if (!user) {
+      res.status(404).send('User not found');
+      return;
     }
+
+    console.log('User found:', user);
+    const subscription = await Subscription.findOne({ userId: user._id });
+    if (!subscription) {
+      res.status(404).send('Subscription not found');
+      return;
+    }
+    
+    console.log('Subscription found:', subscription);
+    res.json({
+      _id: user.id,
+      email: user.email,
+    password: user.password,   
+    stripeId: user.stripeId,
+    stripeSubId: subscription.stripeSubId,
+    subscriptionId: user.subscriptionId,
+      subscriptionLevel: subscription.level,
+      nextBillingDate: subscription.nextBillingDate,
+      endDate: subscription.endDate,
+      status: subscription.status
+    });
   } catch (error: any) {
-    console.error('Error during user login:', error);
-    res.status(500).json({ error: 'Internal Server Error' });
+    console.error('Error fetching subscription:', error);
+    res.status(500).send('Error fetching subscription.');
   }
 };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 export const logoutUser = (req: CustomRequest, res: Response): void => {
   req.session.destroy((err) => {

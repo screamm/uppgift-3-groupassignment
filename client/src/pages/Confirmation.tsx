@@ -58,6 +58,7 @@ export const Confirmation = () => {
               {
                 ...response.data.user,
                 subscriptionId: response.data.subscriptionId,
+    
               },
               sessionId,
               response.data.stripeSubId // Skicka stripeSubId här

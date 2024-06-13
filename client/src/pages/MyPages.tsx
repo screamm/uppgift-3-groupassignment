@@ -9,6 +9,7 @@ export const MyPages = () => {
   const [nextBillingDate, setNextBillingDate] = useState<Date | null>(null);
   const [endDate, setEndDate] = useState<Date | null>(null);
   const [failedPaymentUrl, setFailedPaymentUrl] = useState<string | null>(null);
+  const [status, setStatus] = useState<string>("");
   
 
   useEffect(() => {
@@ -28,12 +29,14 @@ export const MyPages = () => {
         setSubscriptionLevel(response.data.subscriptionLevel);
         setNextBillingDate(new Date(response.data.nextBillingDate));
         setEndDate(response.data.endDate ? new Date(response.data.endDate) : null);
+        setStatus(response.data.status);
+
       })
       .catch((error) => {
         console.error("There was an error fetching the subscription level!", error);
       });
 //lägg in status inactive &&
-    if (user ) {
+    if (status === 'inactive' && user) {
       axios
         .post("http://localhost:3000/stripe/failed-payment-link", { userId: user._id })
         .then((response) => {
@@ -44,7 +47,7 @@ export const MyPages = () => {
           console.error("There was an error fetching the failed payment link!", error);
         });
     }
-  }, [stripeSessionId, user]);
+  }, [stripeSessionId, status, user]);
 
   const handleUpgradeDowngrade = (level: string) => {
     const storedSessionId = stripeSessionId || localStorage.getItem("stripeSessionId");

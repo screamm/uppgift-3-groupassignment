@@ -12,7 +12,6 @@ export const Login = () => {
     email: "",
     password: "",
   });
-  //en liten kommentar
 
   const [errorMessage, setErrorMessage] = useState<string>("");
 
@@ -48,7 +47,7 @@ export const Login = () => {
       // localStorage.setItem("sessionId", response.data.sessionId);
 
       navigate("/mypages");
-    } catch (error: unknown) {
+    } catch (error: any) {
       console.error("Login failed:", error.response?.data || error.message);
       setErrorMessage(error.response?.data?.message || "Login failed");
     }

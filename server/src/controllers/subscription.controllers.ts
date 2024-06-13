@@ -224,7 +224,8 @@ export const getSubscriptionBySessionId = async (req: Request, res: Response): P
     res.json({
       subscriptionLevel: subscription.level,
       nextBillingDate: subscription.nextBillingDate,
-      endDate: subscription.endDate
+      endDate: subscription.endDate,
+      status: subscription.status
     });
   } catch (error: any) {
     console.error('Error fetching subscription:', error);

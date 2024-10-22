@@ -1,56 +1,25 @@
- Inlämningsuppgift
+**E-commerce to sell subscriptions to news articles in 3 different tiers. After making a purchase, the user should receive login credentials to access content based on their subscription tier. Recurring payments should be processed every 7 days to ensure the user retains access.**
 
-Vi kommer ta fram en e-handel där vi säljer prenumerationer till nyhetsartiklar i 3 olika nivåer. När man gjort ett köp ska man få en inloggning till de innehåll som gäller för ens nivå, och det ska göras återkommande kortdragningar var 7:e dag, för att användaren ska ha kvar sin access.
+**Requirements for this task:**
 
- 
+- The backend must be built with TypeScript.
+- Database choice is flexible: MongoDB or MySQL.
+- A plan outlining the distribution of tasks and which days they will be developed should be prepared.
+- Subscriptions at 3 different levels must be sold: basic package, plus, and full access.
+- A user must be able to log in and log out of their account.
+- After logging in, the homepage should display all content pages the user has access to, based on their subscription tier.
+- Content pages must fetch all their data from the database, including title and content, and must be limited based on the user's subscription tier.
+- If a user does not have the correct subscription level, they should receive an upgrade suggestion when trying to access restricted content.
+- Payment processing must be implemented.
+- Subscriptions should renew weekly, either through a cron job or using Stripe subscriptions.
+- If a subscription payment fails, access should be restricted so that users can no longer view pages they previously had access to.
+- A user should be able to manually pay for a renewal if an automatic payment fails, by going through the payment process again.
+- A user should be able to cancel their subscription at any time, but will retain access to their tier until the paid days have expired.
+- An administrator should be able to add content pages and specify which subscription level is required to view them.
 
+**Give your e-commerce a unique name, such as "StoryStream Chronicles," and give the subscription levels unique names like "Explorer's Pass," "Odyssey Membership," and "Mastermind Access." This will make it stand out more when using it in your portfolio for internships and job applications.**
 
- 
+This task measures the following objectives from the course syllabus:
 
-Kraven för denna uppgift:
-
-Betyg G
-
- 
-
-- Backend ska vara byggt med Typescript
-
-- Val av databas är fritt: Mongodb eller MySQL
-
-- Plan över fördelning av arbetsuppgifter och vilka dagar de ska utvecklas ska vara framtagen
-
-- Försäljning av prenumerationer på 3 olika nivåer ska säljas: grundpaket, plus och fullständigt
-
-- En användare ska kunna logga in och logga ut från sitt konto
-
-- Startsidan efter inloggning ska visa alla de innehållssidor som användaren har tillgång till på sin prenumerationsnivå
-
-- Innehållssidor ska hämta all sin information från databasen, rubrik innehåll och kunna begränsas till olika nivåer av prenumerationen
-
-- Om en användare inte har rätt nivå på sin prenumeration ska den få ett förslag att uppgradera när en begränsad sida laddas
-
-- Betalsteg ska implementeras
-
-- Prenumerationer ska förnyas per vecka antingen genom ett cron-job eller med stripe subscriptions
-
-- När en prenumerationsbetalning ej går igenom ska rättigheterna begränsas så att de inte längre kan läsa de sidor de tidigare haft tillgång till
-
-- En användare ska kunna betala en förnyelse som inte automatiskt gått igenom, genom att gå igenom betalsteget igen
-
-- En användare ska när som helst kunna avsluta sin prenumeration, men ska fortfarande ha tillgång till sin nivå fram tills de betalade dagarna har löpt ut
-
-- En administratör ska kunna lägga in innehållssidor och välja vilken nivå man måste ha för att få se den
-
- 
-
-Ge er e-handel ett unikt namn t.ex. “StoryStream Chronicles” och ge de olika nivåerna olika namn, t.ex. “Explorer's Pass”, “Odyssey Membership” och “Mastermind Access”. Detta gör att det står ut mer när man använder det i sin portfolio vid LIA- och arbetsansökan.
-
- 
-
-Denna uppgift mäter följande moment från kursplanen:
-
- 
-
-- TypeScript för backendutveckling
-
-- Planera och genomföra större databasdrivna programmeringsprojekt
+- TypeScript for backend development
+- Planning and executing larger database-driven programming projects

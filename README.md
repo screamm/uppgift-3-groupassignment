@@ -4,9 +4,6 @@ Vi kommer ta fram en e-handel där vi säljer prenumerationer till nyhetsartikla
 
  
 
-Länk till github classroom:
-
-https://classroom.github.com/a/HEdUZuwA
 
  
 
